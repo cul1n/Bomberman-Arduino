@@ -1,3 +1,5 @@
+#include "Entity.h"
+#include "List.h"
 #include "LedControl.h" //  need the library
 
 const int dinPin = 12;
@@ -37,94 +39,6 @@ bool matrix[matrixSize][matrixSize] = {
   {0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0}  
-};
-
-class Position {
-  byte posX, posY;
-  
-  public:
-    Position() {
-      posX = 0;
-      posY = 0;
-    }
-    
-    Position(byte x, byte y) {
-      posX = x;
-      posY = y;
-    }
-    
-    byte getPosX() {
-      return posX;
-    }
-
-    byte getPosY() {
-      return posY;
-    }
-
-    void setPosX(byte x) {
-      posX += x;
-    }
-
-    void setPosY(byte y) {
-      posY += y;
-    }
-};
-
-
-class Entity {
-  protected:
-    Position pos;
-
-  public:
-    Entity(byte x = 0, byte y = 0) : pos(x, y) {
-         
-    }
-    
-    Position getPos() {
-      return pos;
-    }
-
-    void modifyPos(byte x, byte y) {
-      pos.setPosX(x);
-      pos.setPosY(y);
-    }
-};
-
-class Player : public Entity {
-  byte health;
-  byte bombs;
-  byte runningSpeed;
-
-  public:
-    Player(byte x, byte y) : Entity(x, y) {
-    
-    }
-    
-};
-
-class List {
-public:
-    byte length;
-    Entity data[16];
-
-    List() {
-      length = 0;
-    }
-
-    Entity getItem(byte index) {
-      if (index >= length) return;
-      return data[index];
-    }
-    
-    void append(Entity item) {
-        if (length < 16) data[length++] = item;
-    }
-    
-    void remove(byte index) {
-        if (index >= length) return;
-        memmove(&data[index], &data[index+1], (length - index - 1) * sizeof(*data));
-        length--;
-    }
 };
 
 List bombs;
