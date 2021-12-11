@@ -4,6 +4,7 @@
 #include "HighScoreMenu.h"
 #include "Credits.h"
 #include "Intro.h"
+#include "InGame.h"
 
 String listMainMenu[4] = {"Play", "Settings", "High Score", "Credits"};
 String listHighScore[5] = {"High Scores:", "1.NON 0000", "2.NON 000", "3.NON 000", "Back"};
@@ -16,7 +17,7 @@ MainMenu mainMenu(4, listMainMenu);
 HighScoreMenu highScoreMenu(5, listHighScore);
 Credits credits(4, listCredits);
 SettingsMenu settingsMenu(6, listSettingsMenu);
-//InGame inGame;
+InGame inGame;
 
 
 State* currentState = &intro;
@@ -43,9 +44,9 @@ void setGameState(GameState newState) {
       currentState = &settingsMenu;
       break;
 
-//    case GameState::InGame:
-//      currentState = &inGame;
-//      break;
+    case GameState::InGame:
+      currentState = &inGame;
+      break;
 
     default:
       currentState = &mainMenu;

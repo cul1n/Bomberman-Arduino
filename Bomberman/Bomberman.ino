@@ -54,7 +54,17 @@ void setup() {
 }
 
 void loop() {
-  if (getGameState().introSequence() ){
+  if (getGameState().isPlaying()) {
+    if (millis() - lastMoved > moveInterval) {
+      editOption();
+      lastMoved = millis();
+    }
+    getGameState().playerController(pos, letter, finished);
+    pos = 0;
+    letter = 0;
+    finished = false;
+  }
+  else if (getGameState().introSequence() ){
     getGameState().render(0, 0);
   }
   else if (getGameState().isEditingName()) {

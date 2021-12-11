@@ -13,4 +13,8 @@ void Entity::modifyPos(byte x, byte y) {
   pos.setPosY(y);
 }
 
-Player::Player(byte x, byte y) : Entity(x, y) {}
+Player::Player(byte x, byte y) : Entity(x, y) {bombs = 3;}
+
+byte Player::getNumberOfBombs() {
+  return bombs;
+}

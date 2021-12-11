@@ -1,5 +1,4 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#pragma once
 #include "Position.h"
 
 class Entity {
@@ -22,7 +21,7 @@ class Player : public Entity {
   byte runningSpeed;
 
   public:
-    Player(byte, byte);    
-};
+    Player(byte, byte); 
 
-#endif
+    byte getNumberOfBombs();
+};

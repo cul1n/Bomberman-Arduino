@@ -17,6 +17,8 @@ class State {
   virtual bool isEditingMatrixBrightness() {return false;}
   virtual void editMatrixBrightness(int, int, bool) {}
   virtual bool introSequence() {return false;}
+  virtual bool isPlaying() {return false;}
+  virtual void playerController(int, int, bool) {}
 };
 
 

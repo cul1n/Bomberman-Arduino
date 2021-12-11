@@ -1,5 +1,4 @@
-#ifndef LIST_H
-#define LIST_H
+#pragma once
 #include "Entity.h"
 
 class List {
@@ -16,5 +15,3 @@ public:
     
     void remove(byte);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef POSITION_H
-#define POSITION_H
+#pragma once
 #include "LedControl.h"
 
 class Position {
@@ -18,5 +17,3 @@ class Position {
 
     void setPosY(byte);
 };
-
-#endif
