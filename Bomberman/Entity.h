@@ -60,3 +60,14 @@ class Explosion : public Entity {
 
     bool stillActive();
 };
+
+class Wall : public Entity {
+  bool breakable;
+
+  public:
+    Wall();
+
+    Wall(byte, byte, bool);
+
+    bool isBreakable();
+};

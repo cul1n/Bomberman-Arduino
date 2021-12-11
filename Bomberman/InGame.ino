@@ -3,7 +3,7 @@
 extern LiquidCrystal lcd;
 
 InGame::InGame() : p(0, 0) {
-  matrix[0][0] = 1;
+  matrix[0][0] = playerId;
 }
 
 void InGame::render(int index, int lastIndex) {
@@ -14,7 +14,6 @@ bool InGame::isPlaying() {
 }
 
 void InGame::playerController(int xChange, int yChange, bool swChange) {
-  Serial.println(explosions.length);
   byte xLastPos = p.getPos().getPosX();
   byte yLastPos = p.getPos().getPosY();
   bool bombSpawned = false;
@@ -28,34 +27,38 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
   
   if (xChange == -1) {
     if (p.getPos().getPosX() > 0) {
-      p.modifyPos(-1, 0);
+      if (matrix[xLastPos - 1][yLastPos] != breakableWallId && matrix[xLastPos - 1][yLastPos] != solidWallId)
+        p.modifyPos(-1, 0);
     }
     else {
       p.modifyPos(7, 0);
     }
   }
   
-  if (xChange == 1) {
+  else if (xChange == 1) {
     if (p.getPos().getPosX() < 7) {
-      p.modifyPos(1, 0);
+      if (matrix[xLastPos + 1][yLastPos] != breakableWallId && matrix[xLastPos + 1][yLastPos] != solidWallId)
+        p.modifyPos(1, 0);
     }
     else {
       p.modifyPos(-7, 0);
     }
   }
 
-  if (yChange == -1) {
+  else if (yChange == -1) {
     if (p.getPos().getPosY() > 0) {
-      p.modifyPos(0, -1);
+      if (matrix[xLastPos][yLastPos - 1] != breakableWallId && matrix[xLastPos][yLastPos - 1] != solidWallId)
+        p.modifyPos(0, -1);
     }
     else {
       p.modifyPos(0, 7);
     }
   }
   
-  if (yChange == 1) {
+  else if (yChange == 1) {
     if (p.getPos().getPosY() < 7) {
-      p.modifyPos(0, 1);
+      if (matrix[xLastPos][yLastPos + 1] != breakableWallId && matrix[xLastPos][yLastPos + 1] != solidWallId)
+        p.modifyPos(0, 1);
     }
     else {
       p.modifyPos(0, -7);
@@ -96,15 +99,7 @@ void InGame::matrixUpdate() {
       byte y = explosions.getItem(i).getPos().getPosY();
       byte spread = explosions.getItem(i).getSpread();
       byte dir = explosions.getItem(i).getDirection();
-
-      Serial.print(i);
-      Serial.print(" ");
-      Serial.print(x);
-      Serial.print(" ");
-      Serial.print(y);
-      Serial.print(" ");
-      Serial.print(explosions.getItem(i).isResolved());
-      Serial.println();
+      
       switch(dir) {
         case 0: {
           Explosion explosion1(x - 1, y, spread - 1, 1);

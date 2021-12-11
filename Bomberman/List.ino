@@ -9,8 +9,7 @@ template <typename T>
 T& List<T>::getItem(byte index) {
   if (index < length)
     return data[index];
-  T newObject;
-  return newObject;
+  return data[length - 1];
 }
 
 template <typename T>

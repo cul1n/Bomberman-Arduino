@@ -77,3 +77,16 @@ bool Explosion::stillActive() {
   }
   return true;
 }
+
+
+Wall::Wall() : Entity(0, 0) {
+  breakable = false; 
+}
+
+Wall::Wall(byte x, byte y, bool breakable) : Entity(x, y) {
+  this->breakable = breakable; 
+}
+
+bool Wall::isBreakable() {
+  return breakable;
+}
