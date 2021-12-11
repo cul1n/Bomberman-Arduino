@@ -6,7 +6,8 @@
 class InGame : public State {
   const int matrixSize = 8;
   Player p;
-  List bombs;
+  List<Bomb> bombs;
+  List<Explosion> explosions;
   bool matrix[8][8] = {
     {0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},

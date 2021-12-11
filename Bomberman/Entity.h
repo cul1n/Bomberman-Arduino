@@ -25,3 +25,38 @@ class Player : public Entity {
 
     byte getNumberOfBombs();
 };
+
+class Bomb : public Entity {
+  unsigned long long int spawnTime;
+  int duration;
+
+  public:
+    Bomb();
+    
+    Bomb(byte, byte);
+
+    bool stillActive();
+};
+
+class Explosion : public Entity {
+  byte spread;
+  byte directionOfSpread;
+  bool resolved;
+  unsigned long long int spawnTime;
+  int duration;
+
+  public:
+    Explosion();
+
+    Explosion(byte, byte, byte, byte);
+
+    byte getSpread();
+
+    byte getDirection();
+
+    bool isResolved();
+
+    void setResolved();
+
+    bool stillActive();
+};

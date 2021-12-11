@@ -1,17 +1,18 @@
 #pragma once
 #include "Entity.h"
 
+template <typename T>
 class List {
 public:
     byte length;
     
-    Entity data[16];
+    T data[16];
 
     List();
 
-    Entity getItem(byte);
+    T& getItem(byte);
     
-    void append(Entity);
+    void append(T);
     
     void remove(byte);
 };
