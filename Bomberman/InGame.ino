@@ -2,8 +2,8 @@
 #include <LiquidCrystal.h>
 extern LiquidCrystal lcd;
 
-InGame::InGame() : p(0, 0) {
-  matrix[0][0] = playerId;
+InGame::InGame() : p(1, 1) {
+  matrix[1][1] = playerId;
 }
 
 void InGame::render(int index, int lastIndex) {
@@ -78,7 +78,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
 void InGame::matrixUpdate() {
   for (int i = 0; i < bombs.length; i++) {
     if (!bombs.getItem(i).stillActive()) {
-      Explosion explosion(bombs.getItem(i).getPos().getPosX(), bombs.getItem(i).getPos().getPosY(), 1, 0);
+      Explosion explosion(bombs.getItem(i).getPos().getPosX(), bombs.getItem(i).getPos().getPosY(), 2, 0);
       explosions.append(explosion);
       
       matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 0;
@@ -102,34 +102,70 @@ void InGame::matrixUpdate() {
       
       switch(dir) {
         case 0: {
-          Explosion explosion1(x - 1, y, spread - 1, 1);
-          Explosion explosion2(x + 1, y, spread - 1, 2);
-          Explosion explosion3(x, y - 1, spread - 1, 3);
-          Explosion explosion4(x, y + 1, spread - 1, 4);
-          explosions.append(explosion1);
-          explosions.append(explosion2);
-          explosions.append(explosion3);
-          explosions.append(explosion4);
+          if (matrix[x - 1][y] == breakableWallId)
+            matrix[x - 1][y] = 0;
+          else if(matrix[x - 1][y] != solidWallId) {
+            Explosion explosion(x - 1, y, spread - 1, 1);
+            explosions.append(explosion);
+          }
+          
+          if (matrix[x + 1][y] == breakableWallId)
+            matrix[x + 1][y] = 0;
+          else if(matrix[x + 1][y] != solidWallId) {
+            Explosion explosion(x + 1, y, spread - 1, 2);
+            explosions.append(explosion);
+          }
+          
+          if (matrix[x][y - 1] == breakableWallId)
+            matrix[x][y - 1] = 0;
+          else if(matrix[x][y - 1] != solidWallId) {
+            Explosion explosion(x, y - 1, spread - 1, 3);
+            explosions.append(explosion);
+          }
+          
+          if (matrix[x][y + 1] == breakableWallId)
+            matrix[x][y + 1] = 0;
+          else if(matrix[x][y + 1] != solidWallId) {
+            Explosion explosion(x, y + 1, spread - 1, 4);
+            explosions.append(explosion);
+          }
+          
           break;
         }
         case 1: {
-          Explosion explosion(x - 1, y, spread - 1, dir);
-          explosions.append(explosion);
+          if (matrix[x - 1][y] == breakableWallId)
+            matrix[x - 1][y] = 0;
+          else if(matrix[x - 1][y] != solidWallId) {
+            Explosion explosion(x - 1, y, spread - 1, dir);
+            explosions.append(explosion);
+          }
           break;
         }
         case 2: {
-          Explosion explosion(x + 1, y, spread - 1, dir);
-          explosions.append(explosion);
+          if (matrix[x + 1][y] == breakableWallId)
+            matrix[x + 1][y] = 0;
+          else if(matrix[x + 1][y] != solidWallId) {
+            Explosion explosion(x + 1, y, spread - 1, dir);
+            explosions.append(explosion);
+          }
           break;
         }
         case 3: {
-          Explosion explosion(x, y - 1, spread - 1, dir);
-          explosions.append(explosion);
+          if (matrix[x][y - 1] == breakableWallId)
+            matrix[x][y - 1] = 0;
+          else if(matrix[x][y - 1] != solidWallId) {
+            Explosion explosion(x, y - 1, spread - 1, dir);
+            explosions.append(explosion);
+          }
           break;
         }
         case 4: {
-          Explosion explosion(x, y + 1, spread - 1, dir);
-          explosions.append(explosion);
+          if (matrix[x][y + 1] == breakableWallId)
+            matrix[x][y + 1] = 0;
+          else if(matrix[x][y + 1] != solidWallId) {
+            Explosion explosion(x, y + 1, spread - 1, dir);
+            explosions.append(explosion);
+          }
           break;
         }
         default: {
