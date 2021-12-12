@@ -15,10 +15,12 @@ class InGame : public State {
   ShortList<Bomb> bombs;
   List<Explosion> explosions;
   bool levelStarted;
+  bool gameStarted;
   String playerName;
   unsigned long long int startTime;
   int maxTime;
   byte level;
+  int score;
   byte matrix[8][8] = {
     {4, 4, 4, 4, 4, 4, 4, 4},
     {4, 0, 0, 0, 3, 0, 0, 4},
@@ -46,4 +48,6 @@ class InGame : public State {
     void updateHealth();
 
     void updateBombs();
+
+    void updateScore();
 };

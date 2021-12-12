@@ -3,18 +3,11 @@
 extern LiquidCrystal lcd;
 
 InGame::InGame() : p(1, 1) {
-  playerName = "";
-  for (int i = 0; i < 6; i++) {
-    char c = EEPROM.read(i);
-    if (c != 0) {
-      playerName += c;
-    }
-  }
-  if (!playerName.length())
-    playerName = "A";
   matrix[1][1] = playerId;
   level = 1;
   levelStarted = true;
+  gameStarted = true;
+  score = 0;
 }
 
 void InGame::render(int index, int lastIndex) {
@@ -34,7 +27,7 @@ void InGame::render(int index, int lastIndex) {
   lcd.print("x");
   lcd.print(p.getNumberOfBombs());
   lcd.setCursor(8,1);
-  lcd.print("SCORE");
+  lcd.print("SCR: 0");
 }
 
 bool InGame::isPlaying() {
@@ -65,13 +58,35 @@ void InGame::updateBombs() {
   lcd.print(p.getNumberOfBombs() - bombs.length);
 }
 
+void InGame::updateScore() {
+  lcd.setCursor(13, 1);
+  lcd.print("   ");
+  lcd.setCursor(13, 1);
+  lcd.print(score);
+}
+
 
 void InGame::playerController(int xChange, int yChange, bool swChange) {
+  if (gameStarted) {
+    playerName = "";
+    for (int i = 0; i < 6; i++) {
+      char c = EEPROM.read(i);
+      if (c != 0) {
+        playerName += c;
+      }
+    }
+    if (!playerName.length())
+      playerName = "A";
+    score = 0;
+    gameStarted = false;
+  }
+  
   if (levelStarted) {
     startTime = millis();
     maxTime = 25 * level;
     render(0, 0);
-    levelStarted = false;  
+    levelStarted = false;
+    score = 0;  
   }
   
   updateTimer();
@@ -171,29 +186,41 @@ void InGame::matrixUpdate() {
 
       switch (dir) {
         case 0: {
-            if (matrix[x - 1][y] == breakableWallId)
+            if (matrix[x - 1][y] == breakableWallId) {
+              score += 5;
+              updateScore();
               matrix[x - 1][y] = 0;
+            }
             else if (matrix[x - 1][y] != solidWallId) {
               Explosion explosion(x - 1, y, spread - 1, 1);
               explosions.append(explosion);
             }
 
-            if (matrix[x + 1][y] == breakableWallId)
+            if (matrix[x + 1][y] == breakableWallId) {
+              score += 5;
+              updateScore();
               matrix[x + 1][y] = 0;
+            }
             else if (matrix[x + 1][y] != solidWallId) {
               Explosion explosion(x + 1, y, spread - 1, 2);
               explosions.append(explosion);
             }
 
-            if (matrix[x][y - 1] == breakableWallId)
+            if (matrix[x][y - 1] == breakableWallId) {
+              score += 5;
+              updateScore();
               matrix[x][y - 1] = 0;
+            }
             else if (matrix[x][y - 1] != solidWallId) {
               Explosion explosion(x, y - 1, spread - 1, 3);
               explosions.append(explosion);
             }
 
-            if (matrix[x][y + 1] == breakableWallId)
+            if (matrix[x][y + 1] == breakableWallId) {
+              score += 5;
+              updateScore();
               matrix[x][y + 1] = 0;
+            }
             else if (matrix[x][y + 1] != solidWallId) {
               Explosion explosion(x, y + 1, spread - 1, 4);
               explosions.append(explosion);
@@ -202,8 +229,11 @@ void InGame::matrixUpdate() {
             break;
           }
         case 1: {
-            if (matrix[x - 1][y] == breakableWallId)
+            if (matrix[x - 1][y] == breakableWallId) {
+              score += 5;
+              updateScore();
               matrix[x - 1][y] = 0;
+            }
             else if (matrix[x - 1][y] != solidWallId) {
               Explosion explosion(x - 1, y, spread - 1, dir);
               explosions.append(explosion);
@@ -211,8 +241,11 @@ void InGame::matrixUpdate() {
             break;
           }
         case 2: {
-            if (matrix[x + 1][y] == breakableWallId)
+            if (matrix[x + 1][y] == breakableWallId) {
+              score += 5;
+              updateScore();
               matrix[x + 1][y] = 0;
+            }
             else if (matrix[x + 1][y] != solidWallId) {
               Explosion explosion(x + 1, y, spread - 1, dir);
               explosions.append(explosion);
@@ -220,8 +253,11 @@ void InGame::matrixUpdate() {
             break;
           }
         case 3: {
-            if (matrix[x][y - 1] == breakableWallId)
+            if (matrix[x][y - 1] == breakableWallId) {
+              score += 5;
+              updateScore();
               matrix[x][y - 1] = 0;
+            }
             else if (matrix[x][y - 1] != solidWallId) {
               Explosion explosion(x, y - 1, spread - 1, dir);
               explosions.append(explosion);
@@ -229,8 +265,11 @@ void InGame::matrixUpdate() {
             break;
           }
         case 4: {
-            if (matrix[x][y + 1] == breakableWallId)
+            if (matrix[x][y + 1] == breakableWallId) {
+              score += 5;
+              updateScore();
               matrix[x][y + 1] = 0;
+            }
             else if (matrix[x][y + 1] != solidWallId) {
               Explosion explosion(x, y + 1, spread - 1, dir);
               explosions.append(explosion);
