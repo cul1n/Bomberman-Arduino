@@ -22,6 +22,41 @@ const int swPin = 7;
 LiquidCrystal lcd(RS,enable,d4,d5,d6,d7);
 LedControl lc = LedControl(dinPin, clockPin, loadPin, 1); //DIN, CLK, LOAD, No. DRIVER
 
+
+byte hourGlassGlyph[] = {
+  B11111,
+  B10001,
+  B01010,
+  B00100,
+  B01010,
+  B10001,
+  B11111,
+  B11111
+};
+
+byte heartGlyph[] = {
+  B00000,
+  B00000,
+  B01010,
+  B11111,
+  B11111,
+  B01110,
+  B00100,
+  B00000 
+};
+
+byte bombGlyph[] = {
+  B00000,
+  B01000,
+  B10100,
+  B01110,
+  B11111,
+  B11111,
+  B11111,
+  B01110
+};
+
+
 long int lastMoved = millis();
 int moveInterval = 200;
 int index = 0;
@@ -46,6 +81,10 @@ void setup() {
   lc.shutdown(0, false); // turn off power saving, enables display
   lc.setIntensity(0, 5); // sets brightness (0~15 possible values)
   lc.clearDisplay(0);// clear screen
+
+  lcd.createChar(0, hourGlassGlyph);
+  lcd.createChar(1, heartGlyph);
+  lcd.createChar(2, bombGlyph);
   
   Serial.begin(9600);
   //currentMenu->show();

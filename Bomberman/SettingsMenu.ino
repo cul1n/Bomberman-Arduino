@@ -36,7 +36,7 @@ bool SettingsMenu::isEditingName() {
 void SettingsMenu::editName(int pos, int letter, bool finished) {
   if (!started) {
     playerName = "";
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 6; i++) {
       char c = EEPROM.read(i);
       if (c != 0) {
         playerName += c;
@@ -65,7 +65,7 @@ void SettingsMenu::editName(int pos, int letter, bool finished) {
   }
 
   if (pos == 1) {
-    if (currentPos < 7) {
+    if (currentPos < 6) {
       playerName[currentPos] = currentChar;
       lcd.print(currentChar);
       currentPos++;
@@ -102,7 +102,7 @@ void SettingsMenu::editName(int pos, int letter, bool finished) {
   
   if (finished) {
     playerName[currentPos] = currentChar;
-    for(int i = 0; i < 7; i++){
+    for(int i = 0; i < 6; i++){
       if(playerName.length() > i){
         EEPROM.put(i, playerName[i]);
       }

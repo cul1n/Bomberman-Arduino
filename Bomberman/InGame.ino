@@ -3,23 +3,86 @@
 extern LiquidCrystal lcd;
 
 InGame::InGame() : p(1, 1) {
+  playerName = "";
+  for (int i = 0; i < 6; i++) {
+    char c = EEPROM.read(i);
+    if (c != 0) {
+      playerName += c;
+    }
+  }
+  if (!playerName.length())
+    playerName = "A";
   matrix[1][1] = playerId;
+  level = 1;
+  levelStarted = true;
 }
 
 void InGame::render(int index, int lastIndex) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(playerName);
+  lcd.setCursor(7, 0);
+  lcd.print("LV01");
+  lcd.setCursor(12, 0);
+  lcd.write(byte(0));
+  lcd.setCursor(0, 1);
+  lcd.write(byte(1));
+  lcd.print("x");
+  lcd.print(p.getPlayerHealth());
+  lcd.setCursor(4,1);
+  lcd.write(byte(2));
+  lcd.print("x");
+  lcd.print(p.getNumberOfBombs());
+  lcd.setCursor(8,1);
+  lcd.print("SCORE");
 }
 
 bool InGame::isPlaying() {
   return true;
 }
 
+
+int lastTimer = 0;
+void InGame::updateTimer() {
+  int timer = maxTime - (millis() - startTime) / 1000;
+  if (lastTimer != timer) {
+    lcd.setCursor(13, 0);
+    lcd.print("   ");
+    lcd.setCursor(13, 0);
+    lcd.print(timer);
+  }
+  lastTimer = timer;
+}
+
+
+void InGame::updateHealth() {
+  lcd.setCursor(2, 1);
+  lcd.print(p.getPlayerHealth());
+}
+
+void InGame::updateBombs() {
+  lcd.setCursor(6, 1);
+  lcd.print(p.getNumberOfBombs() - bombs.length);
+}
+
+
 void InGame::playerController(int xChange, int yChange, bool swChange) {
+  if (levelStarted) {
+    startTime = millis();
+    maxTime = 25 * level;
+    render(0, 0);
+    levelStarted = false;  
+  }
+  
+  updateTimer();
+  
   byte xLastPos = p.getPos().getPosX();
   byte yLastPos = p.getPos().getPosY();
   bool bombSpawned = false;
 
   if (matrix[xLastPos][yLastPos] == explosionId) {
     p.loseHealth();
+    updateHealth();
   }
   
   if (swChange && bombs.length < p.getNumberOfBombs()) {
@@ -27,6 +90,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     bombSpawned = true;
     matrix[bomb.getPos().getPosX()][bomb.getPos().getPosY()] = 1;
     bombs.append(bomb);
+    updateBombs();
   }
 
   if (xChange == -1) {
@@ -80,7 +144,6 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
 };
 
 void InGame::matrixUpdate() {
-  Serial.println(p.getPlayerHealth());
   for (int i = 0; i < bombs.length; i++) {
     if (!bombs.getItem(i).stillActive()) {
       Explosion explosion(bombs.getItem(i).getPos().getPosX(), bombs.getItem(i).getPos().getPosY(), 2, 0);
@@ -88,6 +151,7 @@ void InGame::matrixUpdate() {
 
       matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 0;
       bombs.remove(i);
+      updateBombs();
       i--;
     }
     else {

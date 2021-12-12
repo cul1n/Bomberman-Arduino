@@ -12,8 +12,13 @@ const byte playerId = 5;
 class InGame : public State {
   const int matrixSize = 8;
   Player p;
-  List<Bomb> bombs;
+  ShortList<Bomb> bombs;
   List<Explosion> explosions;
+  bool levelStarted;
+  String playerName;
+  unsigned long long int startTime;
+  int maxTime;
+  byte level;
   byte matrix[8][8] = {
     {4, 4, 4, 4, 4, 4, 4, 4},
     {4, 0, 0, 0, 3, 0, 0, 4},
@@ -35,5 +40,10 @@ class InGame : public State {
     void playerController(int, int, bool);
 
     void matrixUpdate();
-    
+
+    void updateTimer(); 
+
+    void updateHealth();
+
+    void updateBombs();
 };
