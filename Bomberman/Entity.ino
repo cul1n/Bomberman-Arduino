@@ -13,10 +13,26 @@ void Entity::modifyPos(byte x, byte y) {
   pos.setPosY(y);
 }
 
-Player::Player(byte x, byte y) : Entity(x, y) {bombs = 3;}
+Player::Player(byte x, byte y) : Entity(x, y) {
+  bombs = 3; 
+  health = 3;
+  invincibilityTime = millis();
+  invincibilityDuration = 1000;
+}
 
 byte Player::getNumberOfBombs() {
   return bombs;
+}
+
+byte Player::getPlayerHealth() {
+  return health;
+}
+
+void Player::loseHealth() {
+  if (millis() - invincibilityTime > invincibilityDuration) {
+    health -= 1;
+    invincibilityTime = millis();
+  }
 }
 
 Bomb::Bomb() : Entity(0, 0) {

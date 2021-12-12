@@ -19,11 +19,17 @@ class Player : public Entity {
   byte health;
   byte bombs;
   byte runningSpeed;
+  unsigned long long int invincibilityTime;
+  int invincibilityDuration;
 
   public:
     Player(byte, byte); 
 
     byte getNumberOfBombs();
+
+    byte getPlayerHealth();
+
+    void loseHealth();
 };
 
 class Bomb : public Entity {
