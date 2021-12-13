@@ -8,7 +8,7 @@ GameOver::GameOver() {
 }
 
 void GameOver::render(int dummy1, int buttonPressed) {
-  if (!started) {
+  if (started == false && buttonPressed != -1) {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Congrats! You've");
@@ -24,12 +24,12 @@ void GameOver::render(int dummy1, int buttonPressed) {
     }
     started = true;
   }
-  if (buttonPressed) {
+
+  if (buttonPressed == 1) {
     started = false;
     level = 1;
     setGameState(GameState::MainMenu);
-    getGameState().render(0, -1);
-  }
+  } 
 }
 
 bool GameOver::isGameOver() {

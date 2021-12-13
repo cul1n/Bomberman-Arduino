@@ -11,5 +11,5 @@ class GameOver : public State {
 
     bool isGameOver() override;
 
-    void setLevel(byte);
+    //void setLevel(byte);
 };

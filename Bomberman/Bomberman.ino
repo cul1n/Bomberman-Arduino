@@ -87,8 +87,6 @@ void setup() {
   lcd.createChar(2, bombGlyph);
   
   Serial.begin(9600);
-  //currentMenu->show();
-  //mainMenu.printOnLcd(index, lastIndex);
   getGameState().render(0, -1);
 }
 
@@ -108,17 +106,22 @@ void loop() {
       editOption();
       lastMoved = millis();
     }
+    
     if (finished) 
       getGameState().render(0, 1);
     else 
       getGameState().render(0, 0);
+
+    options = getGameState().getNumberOfOptions();
     pos = 0;
     letter = 0;
     finished = false; 
   }
+  
   else if (getGameState().introSequence() ){
     getGameState().render(0, 0);
   }
+  
   else if (getGameState().isEditingName()) {
     if (millis() - lastMoved > moveInterval) {
       editOption();
