@@ -50,4 +50,6 @@ class InGame : public State {
     void updateBombs();
 
     void updateScore();
+
+    void gameOver();
 };

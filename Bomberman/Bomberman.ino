@@ -103,6 +103,19 @@ void loop() {
     letter = 0;
     finished = false;
   }
+  else if (getGameState().isGameOver()) {
+    if (millis() - lastMoved > moveInterval) {
+      editOption();
+      lastMoved = millis();
+    }
+    if (finished) 
+      getGameState().render(0, 1);
+    else 
+      getGameState().render(0, 0);
+    pos = 0;
+    letter = 0;
+    finished = false; 
+  }
   else if (getGameState().introSequence() ){
     getGameState().render(0, 0);
   }

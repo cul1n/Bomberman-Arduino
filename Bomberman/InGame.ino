@@ -38,6 +38,9 @@ bool InGame::isPlaying() {
 int lastTimer = 0;
 void InGame::updateTimer() {
   int timer = maxTime - (millis() - startTime) / 1000;
+  if (timer == -1) {
+    gameOver();
+  }
   if (lastTimer != timer) {
     lcd.setCursor(13, 0);
     lcd.print("   ");
@@ -51,6 +54,9 @@ void InGame::updateTimer() {
 void InGame::updateHealth() {
   lcd.setCursor(2, 1);
   lcd.print(p.getPlayerHealth());
+  if (!p.getPlayerHealth()) {
+    gameOver();
+  }
 }
 
 void InGame::updateBombs() {
@@ -64,6 +70,17 @@ void InGame::updateScore() {
   lcd.setCursor(13, 1);
   lcd.print(score);
 }
+
+void InGame::gameOver() {
+  while (bombs.length)
+    bombs.remove(0);
+  while (explosions.length)
+    explosions.remove(0);
+  gameStarted = true;
+  levelStarted = true;
+  setGameState(GameState::GameOver);
+}
+
 
 
 void InGame::playerController(int xChange, int yChange, bool swChange) {
@@ -83,7 +100,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
   
   if (levelStarted) {
     startTime = millis();
-    maxTime = 25 * level;
+    maxTime = 5 * level;
     render(0, 0);
     levelStarted = false;
     score = 0;  

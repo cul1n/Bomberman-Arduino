@@ -5,19 +5,21 @@
 #include "Credits.h"
 #include "Intro.h"
 #include "InGame.h"
+#include "GameOver.h"
 
 String listMainMenu[4] = {"Play", "Settings", "High Score", "Credits"};
 String listHighScore[5] = {"High Scores:", "1.NON 0000", "2.NON 000", "3.NON 000", "Back"};
 String listSettingsMenu[6] = {"Name", "Level", "Contrast", "LCD Brightness", "Mtrx Brghtnss", "Back"};
 String listCredits[4] = {"Bomberman", "Calin Hirhui", "Link", "Back"};
-String ListIntro[2] = {"Bomberman", "Loading.."};
+String listIntro[2] = {"Bomberman", "Loading.."};
 
-Intro intro(2, ListIntro);
+Intro intro(2, listIntro);
 MainMenu mainMenu(4, listMainMenu);
 HighScoreMenu highScoreMenu(5, listHighScore);
 Credits credits(4, listCredits);
 SettingsMenu settingsMenu(6, listSettingsMenu);
 InGame inGame;
+GameOver gameOver;
 
 
 State* currentState = &intro;
@@ -48,6 +50,10 @@ void setGameState(GameState newState) {
       currentState = &inGame;
       break;
 
+    case GameState::GameOver:
+      currentState = &gameOver;
+      break;
+      
     default:
       currentState = &mainMenu;
       break;

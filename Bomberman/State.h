@@ -19,6 +19,7 @@ class State {
   virtual bool introSequence() {return false;}
   virtual bool isPlaying() {return false;}
   virtual void playerController(int, int, bool) {}
+  virtual bool isGameOver() {return false;}
 };
 
 
@@ -29,6 +30,7 @@ enum class GameState {
   Credits,
   SettingsMenu,
   InGame,
+  GameOver,
 };
 
 State& getGameState();
