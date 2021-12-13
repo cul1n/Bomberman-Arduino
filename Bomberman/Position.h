@@ -13,6 +13,10 @@ class Position {
 
     byte getPosY();
 
+    void addPosX(byte);
+
+    void addPosY(byte);
+
     void setPosX(byte);
 
     void setPosY(byte);

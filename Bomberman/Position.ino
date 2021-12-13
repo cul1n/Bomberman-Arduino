@@ -18,10 +18,18 @@ byte Position::getPosY() {
   return posY;
 }
 
-void Position::setPosX(byte x) {
+void Position::addPosX(byte x) {
   posX += x;
 }
 
-void Position::setPosY(byte y) {
+void Position::addPosY(byte y) {
   posY += y;
+}
+
+void Position::setPosX(byte x) {
+  posX = x;
+}
+
+void Position::setPosY(byte y) {
+  posY = y;
 }

@@ -19,6 +19,8 @@ const int xPin = A0;
 const int yPin = A1;
 const int swPin = 7;
 
+const int nameAddress = 200;
+
 LiquidCrystal lcd(RS,enable,d4,d5,d6,d7);
 LedControl lc = LedControl(dinPin, clockPin, loadPin, 1); //DIN, CLK, LOAD, No. DRIVER
 
@@ -64,7 +66,7 @@ int lastIndex = -1;
 int options = 4;
 bool change = false;
 const int minThreshold = 200;
-const int maxThreshold = 600;
+const int maxThreshold = 800;
 bool lastSwState = HIGH;
 bool nextMenu = false;
 bool currentlyInMain = true;
@@ -87,6 +89,9 @@ void setup() {
   lcd.createChar(2, bombGlyph);
   
   Serial.begin(9600);
+
+  randomSeed(analogRead(13));
+  
   getGameState().render(0, -1);
 }
 
@@ -174,7 +179,7 @@ void loop() {
     finished = false;
   } 
   else {
-    Serial.println(index);
+    //Serial.println(index);
     if (millis() - lastMoved > moveInterval) {
       updateMenu();
       lastMoved = millis();

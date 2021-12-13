@@ -2,11 +2,12 @@
 #include <LiquidCrystal.h>
 extern LiquidCrystal lcd;
 
-InGame::InGame() : p(1, 1) {
+InGame::InGame() : p(3, 0) {
   matrix[1][1] = playerId;
   level = 1;
   levelStarted = true;
   gameStarted = true;
+  nextRoom = true;
   score = 0;
 }
 
@@ -14,8 +15,6 @@ void InGame::render(int index, int lastIndex) {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(playerName);
-  lcd.setCursor(7, 0);
-  lcd.print("LV01");
   lcd.setCursor(12, 0);
   lcd.write(byte(0));
   lcd.setCursor(0, 1);
@@ -27,13 +26,57 @@ void InGame::render(int index, int lastIndex) {
   lcd.print("x");
   lcd.print(p.getNumberOfBombs());
   lcd.setCursor(8,1);
-  lcd.print("SCR: 0");
+  lcd.print("SCR: ");
 }
 
 bool InGame::isPlaying() {
   return true;
 }
 
+void InGame::generateRoom() {
+  p.setPos(3, 0);
+  for (byte i = 1; i < 7; i++) {
+    for (byte j = 1 ; j < 7; j++) {
+      matrix[i][j] = 0;
+    }
+  }
+  // TO DO: make enter gate switch places
+  matrix[0][3] = solidWallId;
+  matrix[0][4] = solidWallId;
+  matrix[3][7] = solidWallId;
+  matrix[4][7] = solidWallId;
+  matrix[7][3] = solidWallId;
+  matrix[7][4] = solidWallId;
+  
+  byte gatePosition = random(3);
+  
+  if (gatePosition == 0) {
+    matrix[0][3] = gateId;
+    matrix[0][4] = gateId;
+  }
+  else if (gatePosition == 1) {
+    matrix[3][7] = gateId;
+    matrix[4][7] = gateId;
+  }
+  else if (gatePosition == 2) {
+    matrix[7][3] = gateId;
+    matrix[7][4] = gateId;
+  }
+
+  byte numberOfBlocks = ((level + 1) / 2) * 5;
+
+  while (numberOfBlocks) {
+    byte i = random(1, 7);
+    byte j = random(1, 7);
+    if (i != 3 || j != 1) {
+      if (matrix[i][j] != breakableWallId) {
+        matrix[i][j] = breakableWallId;
+        numberOfBlocks--;
+      }
+    }
+  }
+  
+}
 
 int lastTimer = 0;
 void InGame::updateTimer() {
@@ -71,6 +114,15 @@ void InGame::updateScore() {
   lcd.print(score);
 }
 
+void InGame::updateLevel() {
+  lcd.setCursor(7, 0);
+  lcd.print("LV");
+  if ( level != 10) {
+    lcd.print(0);
+  }
+  lcd.print(level);
+}
+
 void InGame::gameOver() {
   while (bombs.length)
     bombs.remove(0);
@@ -78,6 +130,8 @@ void InGame::gameOver() {
     explosions.remove(0);
   gameStarted = true;
   levelStarted = true;
+  nextRoom = true;
+  Serial.println(score);
   setGameState(GameState::GameOver);
 }
 
@@ -85,25 +139,37 @@ void InGame::gameOver() {
 
 void InGame::playerController(int xChange, int yChange, bool swChange) {
   if (gameStarted) {
+    //TO DO: set players health and bombs and spread
     playerName = "";
-    for (int i = 0; i < 6; i++) {
+    for (int i = nameAddress; i < nameAddress + 6; i++) {
       char c = EEPROM.read(i);
+      Serial.println(c);
       if (c != 0) {
         playerName += c;
+        Serial.println(playerName);
       }
     }
     if (!playerName.length())
       playerName = "A";
     score = 0;
+    level = 1;
     gameStarted = false;
   }
   
   if (levelStarted) {
     startTime = millis();
-    maxTime = 5 * level;
+    maxTime = 25 * level;
     render(0, 0);
+    updateLevel();
+    updateScore();
     levelStarted = false;
-    score = 0;  
+    currentRoom = 0;
+  }
+
+  if (nextRoom) {
+    generateRoom();
+    nextRoom = false;
+    currentRoom++;
   }
   
   updateTimer();
@@ -111,7 +177,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
   byte xLastPos = p.getPos().getPosX();
   byte yLastPos = p.getPos().getPosY();
   bool bombSpawned = false;
-
+  
   if (matrix[xLastPos][yLastPos] == explosionId) {
     p.loseHealth();
     updateHealth();
@@ -130,18 +196,12 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       if (matrix[xLastPos - 1][yLastPos] != breakableWallId && matrix[xLastPos - 1][yLastPos] != solidWallId)
         p.modifyPos(-1, 0);
     }
-    else {
-      p.modifyPos(7, 0);
-    }
   }
 
   else if (xChange == 1) {
     if (p.getPos().getPosX() < 7) {
       if (matrix[xLastPos + 1][yLastPos] != breakableWallId && matrix[xLastPos + 1][yLastPos] != solidWallId)
         p.modifyPos(1, 0);
-    }
-    else {
-      p.modifyPos(-7, 0);
     }
   }
 
@@ -150,9 +210,6 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       if (matrix[xLastPos][yLastPos - 1] != breakableWallId && matrix[xLastPos][yLastPos - 1] != solidWallId)
         p.modifyPos(0, -1);
     }
-    else {
-      p.modifyPos(0, 7);
-    }
   }
 
   else if (yChange == 1) {
@@ -160,25 +217,31 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       if (matrix[xLastPos][yLastPos + 1] != breakableWallId && matrix[xLastPos][yLastPos + 1] != solidWallId)
         p.modifyPos(0, 1);
     }
-    else {
-      p.modifyPos(0, -7);
-    }
   }
 
   if (xLastPos != p.getPos().getPosX() || yLastPos != p.getPos().getPosY()) {
+    if (matrix[p.getPos().getPosX()][p.getPos().getPosY()] == gateId) {
+      if (currentRoom == level) {
+        score += (maxTime - (millis() - startTime) / 1000);
+        level++;
+        levelStarted = true; 
+      }
+      nextRoom = true;
+    }
     matrix[p.getPos().getPosX()][p.getPos().getPosY()] = 1;
     matrix[xLastPos][yLastPos] = 0;
     if (!bombSpawned) {
       matrix[xLastPos][yLastPos] = 0;
     }
   }
+  
   matrixUpdate();
 };
 
 void InGame::matrixUpdate() {
   for (int i = 0; i < bombs.length; i++) {
     if (!bombs.getItem(i).stillActive()) {
-      Explosion explosion(bombs.getItem(i).getPos().getPosX(), bombs.getItem(i).getPos().getPosY(), 2, 0);
+      Explosion explosion(bombs.getItem(i).getPos().getPosX(), bombs.getItem(i).getPos().getPosY(), 1, 0);
       explosions.append(explosion);
 
       matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 0;
@@ -208,7 +271,7 @@ void InGame::matrixUpdate() {
               updateScore();
               matrix[x - 1][y] = 0;
             }
-            else if (matrix[x - 1][y] != solidWallId) {
+            else if (matrix[x - 1][y] != solidWallId && matrix[x - 1][y] != gateId) {
               Explosion explosion(x - 1, y, spread - 1, 1);
               explosions.append(explosion);
             }
@@ -218,7 +281,7 @@ void InGame::matrixUpdate() {
               updateScore();
               matrix[x + 1][y] = 0;
             }
-            else if (matrix[x + 1][y] != solidWallId) {
+            else if (matrix[x + 1][y] != solidWallId && matrix[x + 1][y] != gateId) {
               Explosion explosion(x + 1, y, spread - 1, 2);
               explosions.append(explosion);
             }
@@ -228,7 +291,7 @@ void InGame::matrixUpdate() {
               updateScore();
               matrix[x][y - 1] = 0;
             }
-            else if (matrix[x][y - 1] != solidWallId) {
+            else if (matrix[x][y - 1] != solidWallId && matrix[x][y - 1] != gateId) {
               Explosion explosion(x, y - 1, spread - 1, 3);
               explosions.append(explosion);
             }
@@ -238,7 +301,7 @@ void InGame::matrixUpdate() {
               updateScore();
               matrix[x][y + 1] = 0;
             }
-            else if (matrix[x][y + 1] != solidWallId) {
+            else if (matrix[x][y + 1] != solidWallId && matrix[x][y + 1] != gateId) {
               Explosion explosion(x, y + 1, spread - 1, 4);
               explosions.append(explosion);
             }
@@ -251,7 +314,7 @@ void InGame::matrixUpdate() {
               updateScore();
               matrix[x - 1][y] = 0;
             }
-            else if (matrix[x - 1][y] != solidWallId) {
+            else if (matrix[x - 1][y] != solidWallId && matrix[x - 1][y] != gateId) {
               Explosion explosion(x - 1, y, spread - 1, dir);
               explosions.append(explosion);
             }
@@ -263,7 +326,7 @@ void InGame::matrixUpdate() {
               updateScore();
               matrix[x + 1][y] = 0;
             }
-            else if (matrix[x + 1][y] != solidWallId) {
+            else if (matrix[x + 1][y] != solidWallId && matrix[x + 1][y] != gateId) {
               Explosion explosion(x + 1, y, spread - 1, dir);
               explosions.append(explosion);
             }
@@ -275,7 +338,7 @@ void InGame::matrixUpdate() {
               updateScore();
               matrix[x][y - 1] = 0;
             }
-            else if (matrix[x][y - 1] != solidWallId) {
+            else if (matrix[x][y - 1] != solidWallId && matrix[x][y - 1] != gateId) {
               Explosion explosion(x, y - 1, spread - 1, dir);
               explosions.append(explosion);
             }
@@ -287,7 +350,7 @@ void InGame::matrixUpdate() {
               updateScore();
               matrix[x][y + 1] = 0;
             }
-            else if (matrix[x][y + 1] != solidWallId) {
+            else if (matrix[x][y + 1] != solidWallId && matrix[x][y + 1] != gateId) {
               Explosion explosion(x, y + 1, spread - 1, dir);
               explosions.append(explosion);
             }
@@ -314,7 +377,10 @@ void InGame::matrixUpdate() {
 
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      lc.setLed(0, row, col, matrix[row][col]);
+      if (matrix[row][col] != gateId)
+        lc.setLed(0, row, col, matrix[row][col]);
+      else
+        lc.setLed(0, row, col, 0);
     }
   }
 }

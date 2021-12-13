@@ -36,7 +36,7 @@ bool SettingsMenu::isEditingName() {
 void SettingsMenu::editName(int pos, int letter, bool finished) {
   if (!started) {
     playerName = "";
-    for (int i = 0; i < 6; i++) {
+    for (int i = nameAddress; i < nameAddress + 6; i++) {
       char c = EEPROM.read(i);
       if (c != 0) {
         playerName += c;
@@ -102,9 +102,10 @@ void SettingsMenu::editName(int pos, int letter, bool finished) {
   
   if (finished) {
     playerName[currentPos] = currentChar;
-    for(int i = 0; i < 6; i++){
-      if(playerName.length() > i){
-        EEPROM.put(i, playerName[i]);
+    Serial.println(playerName);
+    for(int i = nameAddress; i < nameAddress + 6; i++){
+      if(playerName.length() > i - nameAddress){
+        EEPROM.put(i, playerName[i - nameAddress]);
       }
       else EEPROM.put(i, 0);
     }

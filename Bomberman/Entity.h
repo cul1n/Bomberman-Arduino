@@ -13,6 +13,8 @@ class Entity {
     Position getPos();
 
     void modifyPos(byte, byte);
+
+    void setPos(byte, byte);
 };
 
 class Player : public Entity {

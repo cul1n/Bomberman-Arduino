@@ -9,13 +9,18 @@ Position Entity::getPos() {
 }
 
 void Entity::modifyPos(byte x, byte y) {
+  pos.addPosX(x);
+  pos.addPosY(y);
+}
+
+void Entity::setPos(byte x, byte y) {
   pos.setPosX(x);
   pos.setPosY(y);
 }
 
 Player::Player(byte x, byte y) : Entity(x, y) {
-  bombs = 3; 
-  health = 3;
+  bombs = 1; 
+  health = 1;
   invincibilityTime = millis();
   invincibilityDuration = 1000;
 }
