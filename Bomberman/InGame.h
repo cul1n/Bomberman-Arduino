@@ -23,6 +23,7 @@ class InGame : public State {
   byte level;
   byte currentRoom;
   int score;
+  byte bombBlink;
   byte matrix[8][8] = {
     {4, 4, 4, 4, 4, 4, 4, 4},
     {4, 0, 0, 0, 0, 0, 0, 4},

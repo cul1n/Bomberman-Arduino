@@ -9,6 +9,7 @@ InGame::InGame() : p(3, 0) {
   gameStarted = true;
   nextRoom = true;
   score = 0;
+  bombBlink = 0;
 }
 
 void InGame::render(int index, int lastIndex) {
@@ -140,6 +141,7 @@ void InGame::gameOver() {
 void InGame::playerController(int xChange, int yChange, bool swChange) {
   if (gameStarted) {
     //TO DO: set players health and bombs and spread
+    //TO DO: clear bombs and explosions after exiting the room
     playerName = "";
     for (int i = nameAddress; i < nameAddress + 6; i++) {
       char c = EEPROM.read(i);
@@ -228,11 +230,8 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       }
       nextRoom = true;
     }
-    matrix[p.getPos().getPosX()][p.getPos().getPosY()] = 1;
+    matrix[p.getPos().getPosX()][p.getPos().getPosY()] = playerId;
     matrix[xLastPos][yLastPos] = 0;
-    if (!bombSpawned) {
-      matrix[xLastPos][yLastPos] = 0;
-    }
   }
   
   matrixUpdate();
@@ -377,10 +376,21 @@ void InGame::matrixUpdate() {
 
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      if (matrix[row][col] != gateId)
+      if (matrix[row][col] != gateId && matrix[row][col] != bombId)
         lc.setLed(0, row, col, matrix[row][col]);
       else
         lc.setLed(0, row, col, 0);
+
+      if (matrix[row][col] == bombId) {
+        if (bombBlink > 3)
+          lc.setLed(0, row, col, matrix[row][col]);
+        else
+          lc.setLed(0, row, col, 0); 
+      }
     }
   }
+
+  bombBlink++;
+  if (bombBlink == 10)
+    bombBlink = 0;
 }
