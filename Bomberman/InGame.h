@@ -9,11 +9,13 @@ const byte breakableWallId = 3;
 const byte solidWallId = 4;
 const byte playerId = 5;
 const byte gateId = 6;
+const byte enemyId = 7;
 
 class InGame : public State {
   Player p;
   ShortList<Bomb> bombs;
   List<Explosion> explosions;
+  ShortList<Enemy> enemies; 
   bool levelStarted;
   bool gameStarted;
   bool nextRoom;
@@ -23,7 +25,9 @@ class InGame : public State {
   byte level;
   byte currentRoom;
   int score;
-  byte bombBlink;
+  
+  byte bombBlinker;
+  byte enemyBlinker;
   byte matrix[8][8] = {
     {4, 4, 4, 4, 4, 4, 4, 4},
     {4, 0, 0, 0, 0, 0, 0, 4},
@@ -32,7 +36,7 @@ class InGame : public State {
     {0, 0, 0, 0, 0, 0, 0, 4},
     {4, 0, 0, 0, 0, 0, 0, 4},
     {4, 0, 0, 0, 0, 0, 0, 4},
-    {4, 4, 4, 4, 4, 4, 4, 4}  
+    {4, 4, 4, 4, 4, 4, 4, 4} 
   };
   
   public:
@@ -60,5 +64,7 @@ class InGame : public State {
 
     void gameOver();
 
+    void clearRoom();
+    
     void generateRoom();
 };

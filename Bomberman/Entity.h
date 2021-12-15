@@ -20,7 +20,6 @@ class Entity {
 class Player : public Entity {
   byte health;
   byte bombs;
-  byte runningSpeed;
   unsigned long long int invincibilityTime;
   int invincibilityDuration;
 
@@ -32,6 +31,20 @@ class Player : public Entity {
     byte getPlayerHealth();
 
     void loseHealth();
+};
+
+class Enemy : public Entity {
+  byte directionOfMovement;
+
+  public:
+    Enemy();
+    
+    Enemy(byte, byte, byte);
+
+    byte getDirection();
+
+    void setDirection(byte);
+  
 };
 
 class Bomb : public Entity {
@@ -51,6 +64,7 @@ class Explosion : public Entity {
   byte directionOfSpread;
   bool resolved;
   unsigned long long int spawnTime;
+  // TO DO: maybe smaller type
   int duration;
 
   public:

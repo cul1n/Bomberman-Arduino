@@ -40,6 +40,23 @@ void Player::loseHealth() {
   }
 }
 
+Enemy::Enemy() : Entity(0, 0) {
+  directionOfMovement = 0;
+}
+
+Enemy::Enemy(byte x, byte y, byte dir) : Entity(x, y) {
+  directionOfMovement = dir;
+}
+
+byte Enemy::getDirection() {
+  return directionOfMovement;
+}
+
+void Enemy::setDirection(byte dir) {
+  directionOfMovement = dir;
+}
+
+
 Bomb::Bomb() : Entity(0, 0) {
   spawnTime = millis();
   duration = 3000;  

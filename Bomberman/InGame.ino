@@ -9,7 +9,8 @@ InGame::InGame() : p(3, 0) {
   gameStarted = true;
   nextRoom = true;
   score = 0;
-  bombBlink = 0;
+  bombBlinker = 0;
+  enemyBlinker = 0;
 }
 
 void InGame::render(int index, int lastIndex) {
@@ -74,6 +75,20 @@ void InGame::generateRoom() {
         matrix[i][j] = breakableWallId;
         numberOfBlocks--;
       }
+    }
+  }
+
+  byte numberOfEnemies = (level + 1) / 3;
+
+  while (numberOfEnemies) {
+    byte i = random(2,6);
+    byte j = random(2,6);
+    if (matrix[i][j] != enemyId) {
+      byte dir = random(0,4);
+      matrix[i][j] = enemyId;
+      Enemy enemy(i, j, dir);
+      enemies.append(enemy);
+      numberOfEnemies--;
     }
   }
   
@@ -150,16 +165,22 @@ void InGame::updateHighScore(int currentScore) {
     for (byte i = highScoreAddress; i < highScoreAddress + maxNameLength; i++) {
       EEPROM.put(i + 2 * (maxNameLength + sizeof(int)), playerName[i - highScoreAddress]);
     }
-    EEPROM.put(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int) , currentScore);   
+    EEPROM.put(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int) , currentScore);
   }
   
 }
 
-void InGame::gameOver() {
+void InGame::clearRoom() {
+  while (enemies.length)
+    enemies.remove(0);
   while (bombs.length)
     bombs.remove(0);
   while (explosions.length)
     explosions.remove(0);
+}
+
+void InGame::gameOver() {
+  clearRoom();
   gameStarted = true;
   levelStarted = true;
   nextRoom = true;
@@ -170,7 +191,6 @@ void InGame::gameOver() {
 void InGame::playerController(int xChange, int yChange, bool swChange) {
   if (gameStarted) {
     //TO DO: set players health, bombs and spread
-    //TO DO: clear bombs and explosions after exiting the room
     strcpy(playerName, "      ");
     for (int i = nameAddress; i < nameAddress + 6; i++) {
       char c = EEPROM.read(i);
@@ -203,6 +223,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
   }
 
   if (nextRoom) {
+    clearRoom();
     generateRoom();
     nextRoom = false;
     currentRoom++;
@@ -214,7 +235,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
   byte yLastPos = p.getPos().getPosY();
   bool bombSpawned = false;
   
-  if (matrix[xLastPos][yLastPos] == explosionId) {
+  if (matrix[xLastPos][yLastPos] == explosionId || matrix[xLastPos][yLastPos] == enemyId) {
     p.loseHealth();
     updateHealth();
   }
@@ -284,6 +305,64 @@ void InGame::matrixUpdate() {
     }
     else {
       matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 1;
+    }
+  }
+
+  if (enemyBlinker == 18) {
+    for (int i = 0; i  < enemies.length; i++) {
+      byte x = enemies.getItem(i).getPos().getPosX();
+      byte y = enemies.getItem(i).getPos().getPosY();
+      byte dir = enemies.getItem(i).getDirection();
+      byte newDir = dir;
+      matrix[x][y] = 0;
+      switch (dir) {
+        case 0:
+          if (x + 1 < 7 && (matrix[x + 1][y] == 0 || matrix[x + 1][y] == playerId || matrix[x + 1][y] == explosionId)) {
+            enemies.getItem(i).modifyPos(1, 0);
+          }
+          else {
+            newDir = random(0, 4);
+          }
+          break;
+        case 1:
+          if (x - 1 > 0 && (matrix[x - 1][y] == 0 || matrix[x - 1][y] == playerId || matrix[x - 1][y] == explosionId)) {
+            enemies.getItem(i).modifyPos(-1, 0);
+          }
+          else {
+            newDir = random(0, 4);
+          }
+          break;
+        case 2:
+          if (y + 1 < 7 && (matrix[x][y + 1] == 0 || matrix[x][y + 1] == playerId || matrix[x][y + 1] == explosionId)) {
+            enemies.getItem(i).modifyPos(0, 1);
+          }
+          else {
+            newDir = random(0, 4);
+          }
+          break;
+        case 3:
+          if (y - 1 > 0 && (matrix[x][y - 1] == 0 || matrix[x][y - 1] == playerId || matrix[x][y - 1] == explosionId)) {
+            enemies.getItem(i).modifyPos(0, -1);
+          }
+          else {
+            newDir = random(0, 4);
+          }
+          break;
+        default:
+          break;
+      }
+      
+      enemies.getItem(i).setDirection(newDir);
+      
+      if (matrix[enemies.getItem(i).getPos().getPosX()][enemies.getItem(i).getPos().getPosY()] == explosionId) {
+        enemies.remove(i);
+        score += 20;
+        updateScore();
+      }
+      
+      else {
+        matrix[enemies.getItem(i).getPos().getPosX()][enemies.getItem(i).getPos().getPosY()] = enemyId;
+      }
     }
   }
 
@@ -410,21 +489,31 @@ void InGame::matrixUpdate() {
 
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      if (matrix[row][col] != gateId && matrix[row][col] != bombId)
+      if (matrix[row][col] != gateId && matrix[row][col] != bombId && matrix[row][col] != enemyId)
         lc.setLed(0, row, col, matrix[row][col]);
       else
         lc.setLed(0, row, col, 0);
 
       if (matrix[row][col] == bombId) {
-        if (bombBlink > 3)
+        if (bombBlinker > 3)
           lc.setLed(0, row, col, matrix[row][col]);
         else
           lc.setLed(0, row, col, 0); 
       }
+
+      if (matrix[row][col] == enemyId) {
+        if (enemyBlinker % 3 == 0)
+          lc.setLed(0, row, col, matrix[row][col]);
+        else
+          lc.setLed(0, row, col, 0);
+      }
     }
   }
 
-  bombBlink++;
-  if (bombBlink == 10)
-    bombBlink = 0;
+  bombBlinker++;
+  if (bombBlinker == 10)
+    bombBlinker = 0;
+  enemyBlinker++;
+  if (enemyBlinker == 19)
+    enemyBlinker = 0;
 }
