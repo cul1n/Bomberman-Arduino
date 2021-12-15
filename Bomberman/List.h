@@ -6,7 +6,7 @@ class List {
 public:
     byte length;
     
-    T data[16];
+    T data[5];
 
     List();
 

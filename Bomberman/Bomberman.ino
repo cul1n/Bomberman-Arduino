@@ -7,7 +7,6 @@ const int dinPin = 12;
 const int clockPin = 11;
 const int loadPin = 10;
 
-
 const int RS = 8;
 const int enable = 9;
 const int d4 = 5;
@@ -19,7 +18,15 @@ const int xPin = A0;
 const int yPin = A1;
 const int swPin = 7;
 
-const int nameAddress = 200;
+const byte maxNameLength = 6;
+const byte nameAddress = 200;
+const byte levelAddress = nameAddress + maxNameLength;
+const byte contrastAddress = levelAddress + sizeof(int);
+const byte lcdBrightnessAddress = contrastAddress + sizeof(int);
+const byte matrixBrightnessAddress = lcdBrightnessAddress + sizeof(int);
+const byte highScoreAddress = matrixBrightnessAddress + sizeof(int);
+const byte statsAddress = highScoreAddress + 3 * (maxNameLength + sizeof(int));
+
 
 LiquidCrystal lcd(RS,enable,d4,d5,d6,d7);
 LedControl lc = LedControl(dinPin, clockPin, loadPin, 1); //DIN, CLK, LOAD, No. DRIVER
@@ -91,7 +98,7 @@ void setup() {
   Serial.begin(9600);
 
   randomSeed(analogRead(13));
-  
+
   getGameState().render(0, -1);
 }
 

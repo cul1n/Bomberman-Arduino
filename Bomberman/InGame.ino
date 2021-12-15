@@ -124,6 +124,37 @@ void InGame::updateLevel() {
   lcd.print(level);
 }
 
+void InGame::updateHighScore(int currentScore) {
+  int intType = 0;
+  if (currentScore > EEPROM.get(highScoreAddress + maxNameLength, intType)) {
+    for (byte i = highScoreAddress; i < highScoreAddress + maxNameLength; i++) {
+      EEPROM.put(i + 2 * (maxNameLength + sizeof(int)), EEPROM.read(i + maxNameLength + sizeof(int)));
+      EEPROM.put(i + maxNameLength + sizeof(int), EEPROM.read(i));
+      EEPROM.put(i, playerName[i - highScoreAddress]);
+    }
+    EEPROM.put(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int) , EEPROM.get(highScoreAddress + 2 * maxNameLength + sizeof(int), intType));
+    EEPROM.put(highScoreAddress + 2 * maxNameLength + sizeof(int) , EEPROM.get(highScoreAddress + maxNameLength, intType));
+    EEPROM.put(highScoreAddress + maxNameLength, currentScore);
+  }
+  
+  else if (currentScore > EEPROM.get(highScoreAddress + 2 * maxNameLength + sizeof(int), intType)) {
+    for (byte i = highScoreAddress; i < highScoreAddress + maxNameLength; i++) {
+      EEPROM.put(i + 2 * (maxNameLength + sizeof(int)), EEPROM.read(i + maxNameLength + sizeof(int)));
+      EEPROM.put(i + maxNameLength + sizeof(int), playerName[i - highScoreAddress]);
+    }
+    EEPROM.put(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int) , EEPROM.get(highScoreAddress + 2 * maxNameLength + sizeof(int), intType));
+    EEPROM.put(highScoreAddress + 2 * maxNameLength + sizeof(int) , currentScore);
+  }
+
+  else if (currentScore > EEPROM.get(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int), intType)) {
+    for (byte i = highScoreAddress; i < highScoreAddress + maxNameLength; i++) {
+      EEPROM.put(i + 2 * (maxNameLength + sizeof(int)), playerName[i - highScoreAddress]);
+    }
+    EEPROM.put(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int) , currentScore);   
+  }
+  
+}
+
 void InGame::gameOver() {
   while (bombs.length)
     bombs.remove(0);
@@ -132,29 +163,32 @@ void InGame::gameOver() {
   gameStarted = true;
   levelStarted = true;
   nextRoom = true;
-  Serial.println(score);
+  updateHighScore(score);
   setGameState(GameState::GameOver);
 }
 
-
-
 void InGame::playerController(int xChange, int yChange, bool swChange) {
   if (gameStarted) {
-    //TO DO: set players health and bombs and spread
+    //TO DO: set players health, bombs and spread
     //TO DO: clear bombs and explosions after exiting the room
-    playerName = "";
+    strcpy(playerName, "      ");
     for (int i = nameAddress; i < nameAddress + 6; i++) {
       char c = EEPROM.read(i);
       Serial.println(c);
-      if (c != 0) {
-        playerName += c;
+      if (c != '\0') {
+        playerName[i - nameAddress] = c;
         Serial.println(playerName);
       }
     }
-    if (!playerName.length())
-      playerName = "A";
+    playerName[6] = '\0';
+    if (!strlen(playerName))
+      strcpy(playerName, "A");
     score = 0;
-    level = 1;
+
+    int intType = 0;
+    level = EEPROM.get(levelAddress, intType);
+    if (level == 0)
+      level = 1;
     gameStarted = false;
   }
   

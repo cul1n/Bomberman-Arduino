@@ -8,7 +8,7 @@
 #include "GameOver.h"
 
 String listMainMenu[4] = {"Play", "Settings", "High Score", "Credits"};
-String listHighScore[5] = {"High Scores:", "1.NON 0000", "2.NON 000", "3.NON 000", "Back"};
+String listHighScore[5] = {"High Scores:", "NON 0", "NON 0", "NON 0", "Back"};
 String listSettingsMenu[6] = {"Name", "Level", "Contrast", "LCD Brightness", "Mtrx Brghtnss", "Back"};
 String listCredits[4] = {"Bomberman", "Calin Hirhui", "Link", "Back"};
 String listIntro[2] = {"Bomberman", "Loading.."};

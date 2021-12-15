@@ -17,7 +17,7 @@ class InGame : public State {
   bool levelStarted;
   bool gameStarted;
   bool nextRoom;
-  String playerName;
+  char playerName[7];
   unsigned long long int startTime;
   int maxTime;
   byte level;
@@ -55,6 +55,8 @@ class InGame : public State {
     void updateScore();
 
     void updateLevel();
+
+    void updateHighScore(int);
 
     void gameOver();
 
