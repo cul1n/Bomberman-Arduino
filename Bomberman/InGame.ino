@@ -185,12 +185,12 @@ void InGame::gameOver() {
   levelStarted = true;
   nextRoom = true;
   updateHighScore(score);
+  EEPROM.put(statsAddress, level);
   setGameState(GameState::GameOver);
 }
 
 void InGame::playerController(int xChange, int yChange, bool swChange) {
   if (gameStarted) {
-    //TO DO: set players health, bombs and spread
     strcpy(playerName, "      ");
     for (int i = nameAddress; i < nameAddress + 6; i++) {
       char c = EEPROM.read(i);
@@ -210,6 +210,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     if (level == 0)
       level = 1;
     gameStarted = false;
+    p.setStats(1, 1, 1);
   }
   
   if (levelStarted) {
@@ -295,7 +296,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
 void InGame::matrixUpdate() {
   for (int i = 0; i < bombs.length; i++) {
     if (!bombs.getItem(i).stillActive()) {
-      Explosion explosion(bombs.getItem(i).getPos().getPosX(), bombs.getItem(i).getPos().getPosY(), 1, 0);
+      Explosion explosion(bombs.getItem(i).getPos().getPosX(), bombs.getItem(i).getPos().getPosY(), p.getExplosionSpread(), 0);
       explosions.append(explosion);
 
       matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 0;

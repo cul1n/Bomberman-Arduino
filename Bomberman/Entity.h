@@ -20,6 +20,7 @@ class Entity {
 class Player : public Entity {
   byte health;
   byte bombs;
+  byte explosionSpread;
   unsigned long long int invincibilityTime;
   int invincibilityDuration;
 
@@ -30,7 +31,11 @@ class Player : public Entity {
 
     byte getPlayerHealth();
 
+    byte getExplosionSpread();
+
     void loseHealth();
+
+    void setStats(byte, byte, byte);
 };
 
 class Enemy : public Entity {

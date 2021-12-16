@@ -21,6 +21,7 @@ void Entity::setPos(byte x, byte y) {
 Player::Player(byte x, byte y) : Entity(x, y) {
   bombs = 1; 
   health = 1;
+  explosionSpread = 1;
   invincibilityTime = millis();
   invincibilityDuration = 1000;
 }
@@ -33,11 +34,21 @@ byte Player::getPlayerHealth() {
   return health;
 }
 
+byte Player::getExplosionSpread() {
+  return explosionSpread;
+}
+
 void Player::loseHealth() {
   if (millis() - invincibilityTime > invincibilityDuration) {
     health -= 1;
     invincibilityTime = millis();
   }
+}
+
+void Player::setStats(byte health, byte bombs, byte explosionSpread) {
+  this->health = health;
+  this->bombs = bombs;
+  this->explosionSpread = explosionSpread;
 }
 
 Enemy::Enemy() : Entity(0, 0) {

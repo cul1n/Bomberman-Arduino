@@ -14,6 +14,7 @@ void GameOver::render(int dummy1, int buttonPressed) {
     lcd.print("Congrats! You've");
     lcd.setCursor(0, 1);
     lcd.print("reached ");
+    level = EEPROM.read(statsAddress);
     if (level == 10) {
       lcd.print("the end!");
     }
