@@ -8,9 +8,14 @@ InGame::InGame() : p(3, 0) {
   levelStarted = true;
   gameStarted = true;
   nextRoom = true;
+  shop = false;
+  shopDisplayed = false;
   score = 0;
   bombBlinker = 0;
   enemyBlinker = 0;
+  for (int i = 0; i < 3; i++) {
+    items[i] = true;
+  }
 }
 
 void InGame::render(int index, int lastIndex) {
@@ -37,6 +42,7 @@ bool InGame::isPlaying() {
 
 void InGame::generateRoom() {
   p.setPos(3, 0);
+  matrix[3][0] = playerId;
   for (byte i = 1; i < 7; i++) {
     for (byte j = 1 ; j < 7; j++) {
       matrix[i][j] = 0;
@@ -210,87 +216,254 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     if (level == 0)
       level = 1;
     gameStarted = false;
-    p.setStats(1, 1, 1);
-  }
-  
-  if (levelStarted) {
-    startTime = millis();
-    maxTime = 25 * level;
-    render(0, 0);
-    updateLevel();
-    updateScore();
-    levelStarted = false;
-    currentRoom = 0;
+    p.setStats(3, 1, 1);
   }
 
-  if (nextRoom) {
-    clearRoom();
-    generateRoom();
-    nextRoom = false;
-    currentRoom++;
-  }
-  
-  updateTimer();
-  
-  byte xLastPos = p.getPos().getPosX();
-  byte yLastPos = p.getPos().getPosY();
-  bool bombSpawned = false;
-  
-  if (matrix[xLastPos][yLastPos] == explosionId || matrix[xLastPos][yLastPos] == enemyId) {
-    p.loseHealth();
-    updateHealth();
-  }
-  
-  if (swChange && bombs.length < p.getNumberOfBombs()) {
-    Bomb bomb(p.getPos().getPosX(), p.getPos().getPosY());
-    bombSpawned = true;
-    matrix[bomb.getPos().getPosX()][bomb.getPos().getPosY()] = 1;
-    bombs.append(bomb);
-    updateBombs();
-  }
+  if (shop) {
+    if (!shopDisplayed) {
+      bool removed = false;
 
-  if (xChange == -1) {
-    if (p.getPos().getPosX() > 0) {
-      if (matrix[xLastPos - 1][yLastPos] != breakableWallId && matrix[xLastPos - 1][yLastPos] != solidWallId)
-        p.modifyPos(-1, 0);
-    }
-  }
-
-  else if (xChange == 1) {
-    if (p.getPos().getPosX() < 7) {
-      if (matrix[xLastPos + 1][yLastPos] != breakableWallId && matrix[xLastPos + 1][yLastPos] != solidWallId)
-        p.modifyPos(1, 0);
-    }
-  }
-
-  else if (yChange == -1) {
-    if (p.getPos().getPosY() > 0) {
-      if (matrix[xLastPos][yLastPos - 1] != breakableWallId && matrix[xLastPos][yLastPos - 1] != solidWallId)
-        p.modifyPos(0, -1);
-    }
-  }
-
-  else if (yChange == 1) {
-    if (p.getPos().getPosY() < 7) {
-      if (matrix[xLastPos][yLastPos + 1] != breakableWallId && matrix[xLastPos][yLastPos + 1] != solidWallId)
-        p.modifyPos(0, 1);
-    }
-  }
-
-  if (xLastPos != p.getPos().getPosX() || yLastPos != p.getPos().getPosY()) {
-    if (matrix[p.getPos().getPosX()][p.getPos().getPosY()] == gateId) {
-      if (currentRoom == level) {
-        score += (maxTime - (millis() - startTime) / 1000);
-        level++;
-        levelStarted = true; 
+      if (p.getExplosionSpread() == 2)  {
+        items[2] = false;
+        removed = true;
       }
-      nextRoom = true;
+
+      if (p.getNumberOfBombs() == 3) {
+        items[1] = false;
+        removed = true;
+      }
+
+      if (!removed) {
+        byte removedItem  = random(0,6);
+        
+        if (removedItem == 0) {
+          items[0] = false;
+        }
+        else if (removedItem == 1) {
+          items[1] = false;
+        }
+        else {
+          items[2] = false;
+        }
+      }
+      
+      lc.clearDisplay(0);
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("SHOP: SCORE: ");
+      lcd.print(score);
+      lcd.setCursor(0, 1);
+      lcd.print(">");
+
+      for (int i = 0; i < 3; i++) {
+        if (items[i] == true) {
+          byte itemValue = (level / 2 + i) * 25;
+          lcd.write(byte(i + 1));
+          lcd.print(":");
+          lcd.print(itemValue);
+          if (itemValue < 100) {
+            lcd.print("  ");
+          }
+          else {
+            lcd.print(" ");
+          }
+        }
+      }
+
+      lcd.setCursor(13, 1);
+      lcd.print("NO");
+      shopDisplayed = true;
+      shopIndex = 0;
     }
-    matrix[p.getPos().getPosX()][p.getPos().getPosY()] = playerId;
-    matrix[xLastPos][yLastPos] = 0;
+    if (xChange == -1) {
+      if (shopIndex != 0) {
+        lcd.setCursor(shopIndex * 6, 1);
+        lcd.print(" ");
+        shopIndex--;
+        lcd.setCursor(shopIndex * 6, 1);
+        lcd.print(">");
+      }
+    }
+  
+    else if (xChange == 1) {
+      if (shopIndex != 2) {
+        lcd.setCursor(shopIndex * 6, 1);
+        lcd.print(" ");
+        shopIndex++;
+        lcd.setCursor(shopIndex * 6, 1);
+        lcd.print(">");
+      }
+    }
+
+    else if (swChange) {
+      
+      switch (shopIndex) {
+        case 0: {
+          byte i = 0;
+          
+          while (items[i] == false && i < 3) {
+            i++;
+          }
+
+          byte itemValue = (level / 2 + i) * 25;
+
+          if (score > itemValue) {
+            score -= itemValue;
+            
+            if (i == 0) {
+              p.setStats(p.getPlayerHealth() + 1, p.getNumberOfBombs(), p.getExplosionSpread());
+            }
+            
+            else if (i == 1) {
+              p.setStats(p.getPlayerHealth(), p.getNumberOfBombs() + 1, p.getExplosionSpread());
+            }
+            
+            else if (i == 2) {
+              p.setStats(p.getPlayerHealth(), p.getNumberOfBombs(), p.getExplosionSpread() + 1);
+            }
+
+            for (int i = 0; i < 3; i++) {
+              items[i] = true;
+            }
+                        
+            shop = false;             
+          }
+          break;
+        }
+        
+        case 1: {
+          byte i = 2;
+          
+          while (items[i] == false && i > 0) {
+            i--;
+          }
+
+          byte itemValue = (level / 2 + i) * 25;
+
+          if (score > itemValue && i != 0) {
+            score -= itemValue;
+
+            if (i == 1) {
+              p.setStats(p.getPlayerHealth(), p.getNumberOfBombs() + 1, p.getExplosionSpread());
+            }
+            else if (i == 2) {
+              p.setStats(p.getPlayerHealth(), p.getNumberOfBombs(), p.getExplosionSpread() + 1);
+            }
+            
+            for (int i = 0; i < 3; i++) {
+              items[i] = true;
+            }
+          
+            shop = false;
+
+          }
+          
+          break;
+        }
+        
+        case 2: {
+          shop = false;
+          
+          for (int i = 0; i < 3; i++) {
+            items[i] = true;
+          }
+          
+          break;
+        }
+        
+        default: {
+          break;
+        }
+        
+      }
+    }
+  
   }
   
-  matrixUpdate();
+  else {
+    if (levelStarted) {
+      startTime = millis();
+      maxTime = 25 * level;
+      render(0, 0);
+      updateLevel();
+      updateScore();
+      levelStarted = false;
+      currentRoom = 0;
+    }
+  
+    if (nextRoom) {
+      clearRoom();
+      generateRoom();
+      nextRoom = false;
+      currentRoom++;
+    }
+    
+    updateTimer();
+    
+    byte xLastPos = p.getPos().getPosX();
+    byte yLastPos = p.getPos().getPosY();
+    bool bombSpawned = false;
+    
+    if (matrix[xLastPos][yLastPos] == explosionId || matrix[xLastPos][yLastPos] == enemyId) {
+      p.loseHealth();
+      updateHealth();
+    }
+    
+    if (swChange && bombs.length < p.getNumberOfBombs()) {
+      Bomb bomb(p.getPos().getPosX(), p.getPos().getPosY());
+      bombSpawned = true;
+      matrix[bomb.getPos().getPosX()][bomb.getPos().getPosY()] = 1;
+      bombs.append(bomb);
+      updateBombs();
+    }
+  
+    if (xChange == -1) {
+      if (p.getPos().getPosX() > 0) {
+        if (matrix[xLastPos - 1][yLastPos] != breakableWallId && matrix[xLastPos - 1][yLastPos] != solidWallId)
+          p.modifyPos(-1, 0);
+      }
+    }
+  
+    else if (xChange == 1) {
+      if (p.getPos().getPosX() < 7) {
+        if (matrix[xLastPos + 1][yLastPos] != breakableWallId && matrix[xLastPos + 1][yLastPos] != solidWallId)
+          p.modifyPos(1, 0);
+      }
+    }
+  
+    else if (yChange == -1) {
+      if (p.getPos().getPosY() > 0) {
+        if (matrix[xLastPos][yLastPos - 1] != breakableWallId && matrix[xLastPos][yLastPos - 1] != solidWallId)
+          p.modifyPos(0, -1);
+      }
+    }
+  
+    else if (yChange == 1) {
+      if (p.getPos().getPosY() < 7) {
+        if (matrix[xLastPos][yLastPos + 1] != breakableWallId && matrix[xLastPos][yLastPos + 1] != solidWallId)
+          p.modifyPos(0, 1);
+      }
+    }
+  
+    if (xLastPos != p.getPos().getPosX() || yLastPos != p.getPos().getPosY()) {
+      if (matrix[p.getPos().getPosX()][p.getPos().getPosY()] == gateId) {
+        if (currentRoom == 1) { //ATENTIE = LEVEL
+          score += (maxTime - (millis() - startTime) / 1000);
+          level++;
+          levelStarted = true; 
+          if (level % 2 == 1) {
+            shop = true;
+            shopDisplayed = false;
+          }
+        }
+        nextRoom = true;
+      }
+      matrix[p.getPos().getPosX()][p.getPos().getPosY()] = playerId;
+      matrix[xLastPos][yLastPos] = 0;
+    }
+    
+    matrixUpdate();
+  }
 };
 
 void InGame::matrixUpdate() {

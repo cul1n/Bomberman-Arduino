@@ -206,7 +206,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
     lcd.setCursor(1, 1);
     lcd.print(contrast);
     lcd.print("   ");
-    //analogWrite(6, contrast);
+    analogWrite(contrastPin, contrast);
   }
 
   if (increment == -1) {
@@ -217,7 +217,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
     lcd.setCursor(1, 1);
     lcd.print(contrast);
     lcd.print("   ");
-    //analogWrite(6, contrast);
+    analogWrite(contrastPin, contrast);
   }
 
   if (exponent == 1) {
@@ -228,7 +228,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
     lcd.setCursor(1, 1);
     lcd.print(contrast);
     lcd.print("   ");
-    //analogWrite(6, contrast);
+    analogWrite(contrastPin, contrast);
   }
 
   if (exponent == -1) {
@@ -239,7 +239,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
     lcd.setCursor(1, 1);
     lcd.print(contrast);
     lcd.print("   ");
-    //analogWrite(6, contrast);
+    analogWrite(contrastPin, contrast);
   }
 
   if (finished) {
@@ -275,7 +275,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
     lcd.print("   ");
-    analogWrite(6, lcdBrightness);
+    analogWrite(brightnessPin, lcdBrightness);
   }
 
   if (increment == -1) {
@@ -286,7 +286,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
     lcd.print("   ");
-    analogWrite(6, lcdBrightness);
+    analogWrite(brightnessPin, lcdBrightness);
   }
 
   if (exponent == 1) {
@@ -297,7 +297,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
     lcd.print("   ");
-    analogWrite(6, lcdBrightness);
+    analogWrite(brightnessPin, lcdBrightness);
   }
 
   if (exponent == -1) {
@@ -308,7 +308,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
     lcd.print("   ");
-    analogWrite(6, lcdBrightness);
+    analogWrite(brightnessPin, lcdBrightness);
   }
 
   if (finished) {

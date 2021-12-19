@@ -19,12 +19,16 @@ class InGame : public State {
   bool levelStarted;
   bool gameStarted;
   bool nextRoom;
+  bool shop;
+  bool shopDisplayed;
   char playerName[7];
   unsigned long long int startTime;
   int maxTime;
   byte level;
   byte currentRoom;
   int score;
+  byte shopIndex;
+  bool items[3];
   
   byte bombBlinker;
   byte enemyBlinker;

@@ -9,6 +9,8 @@ const int loadPin = 10;
 
 const int RS = 8;
 const int enable = 9;
+const int contrastPin = 13;
+const int brightnessPin = 6;
 const int d4 = 5;
 const int d5 = 4;
 const int d6 = 3;
@@ -65,6 +67,17 @@ byte bombGlyph[] = {
   B01110
 };
 
+byte bonusSpreadGlyph[] = {
+  B01110,
+  B00100,
+  B00100,
+  B01110,
+  B10001,
+  B11001,
+  B11111,
+  B01110
+};
+
 
 long int lastMoved = millis();
 int moveInterval = 200;
@@ -81,8 +94,8 @@ bool finished = false;
 int pos, letter = 0;
 
 void setup() {
-  //analogWrite(6, 30);
-  analogWrite(6, 128);
+  analogWrite(contrastPin, 20);
+  analogWrite(brightnessPin, 60);
   pinMode(swPin, INPUT_PULLUP);
   // set up the LCD's number of columns and rows:
   lcd.begin(16,2);
@@ -94,6 +107,7 @@ void setup() {
   lcd.createChar(0, hourGlassGlyph);
   lcd.createChar(1, heartGlyph);
   lcd.createChar(2, bombGlyph);
+  lcd.createChar(3, bonusSpreadGlyph);
   
   Serial.begin(9600);
 
@@ -218,11 +232,11 @@ void editOption() {
   finished = false;
   
   if (yValue > maxThreshold) {
-    letter = +1;
+    letter = -1;
   }
 
   if (yValue < minThreshold) {
-    letter = -1;
+    letter = +1;
   }
 
   if (xValue > maxThreshold) {
