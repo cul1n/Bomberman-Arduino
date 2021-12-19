@@ -3,7 +3,7 @@
 extern LiquidCrystal lcd;
 
 void Menu::render(int index, int lastIndex) {
-  updateList();
+  updateList(index);
   if (index % 2 == 0 && lastIndex == index - 1) {
     lcd.clear();
     lcd.setCursor(0,0);

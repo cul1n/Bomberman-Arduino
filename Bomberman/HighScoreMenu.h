@@ -7,5 +7,5 @@ class HighScoreMenu : public Menu {
 
     void update(int);
     
-    void updateList() override;
+    void updateList(byte) override;
 };

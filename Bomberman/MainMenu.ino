@@ -16,3 +16,31 @@ void MainMenu::update(int index) {
       break;
   }
 }
+
+void MainMenu::updateList(byte index) {
+  switch (index) {
+    case 0:
+      displayIcon(playIcon);
+      break;
+    case 1:
+      displayIcon(settingsIcon);
+      break;
+    case 2:
+      displayIcon(highScoreIcon);
+      break;
+    case 3:
+      displayIcon(creditsIcon);
+      break;
+  }
+}
+
+void MainMenu::displayIcon(uint64_t icon) {
+  for (int i = 0; i < 8; i++) {
+    byte row = (icon >> i * 8) & 0xFF;
+    
+    for (int j = 0; j < 8; j++) {
+      lc.setLed(0, i, j, bitRead(row, j));
+    }
+    
+  }
+}

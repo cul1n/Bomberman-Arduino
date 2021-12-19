@@ -6,5 +6,9 @@ class MainMenu : public Menu {
     MainMenu(int number, String *list) : Menu(number, list) {};
     
     void update(int);
+
+    void updateList(byte) override;
+
+    void displayIcon(uint64_t);
   
 };

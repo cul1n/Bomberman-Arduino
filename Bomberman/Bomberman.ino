@@ -34,6 +34,26 @@ LiquidCrystal lcd(RS,enable,d4,d5,d6,d7);
 LedControl lc = LedControl(dinPin, clockPin, loadPin, 1); //DIN, CLK, LOAD, No. DRIVER
 
 
+
+const uint64_t animation[] = {
+  0x387c7c7c38120f02,
+  0x387c7c7c38140e04,
+  0x387c7c7c38100c0c,
+  0x387c7c7c38103810,
+  0x387c7c7c38100000,
+  0x7e7e7e7e7e7e0000,
+  0xffffffffffffff00,
+  0xffffffffffffffff
+};
+
+const int lengthOfAnimation = sizeof(animation)/8;
+
+const uint64_t playIcon = 0x3c4a99b9b9994a3c;
+const uint64_t settingsIcon = 0x000456a7a7560400;
+const uint64_t highScoreIcon = 0x3c18187ebdbdff3c;
+const uint64_t creditsIcon = 0x1818001870667e3c;
+
+
 byte hourGlassGlyph[] = {
   B11111,
   B10001,
@@ -114,6 +134,16 @@ void setup() {
   randomSeed(analogRead(13));
 
   getGameState().render(0, -1);
+
+  for (int index = 0; index < lengthOfAnimation; index++) {
+    for (int i = 0; i < 8; i++) {
+      byte row = (animation[index] >> i * 8) & 0xFF;
+      for (int j = 0; j < 8; j++) {
+        lc.setLed(0, i, j, bitRead(row, j));
+      }
+    }
+    delay(375);
+  }
 }
 
 void loop() {

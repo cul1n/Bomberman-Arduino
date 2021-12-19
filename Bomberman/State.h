@@ -20,7 +20,7 @@ class State {
   virtual bool isPlaying() {return false;}
   virtual void playerController(int, int, bool) {}
   virtual bool isGameOver() {return false;}
-  virtual void updateList() {}
+  virtual void updateList(byte) {}
 };
 
 

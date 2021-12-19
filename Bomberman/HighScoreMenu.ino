@@ -10,7 +10,7 @@ void HighScoreMenu::update(int index) {
   }
 }
 
-void HighScoreMenu::updateList() {
+void HighScoreMenu::updateList(byte dummy) {
   for (byte i = 0; i < 3; i++) {
     if (EEPROM.read(highScoreAddress + i * (maxNameLength + sizeof(int))) != 0) {
       String score = "";
