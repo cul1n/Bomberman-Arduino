@@ -22,6 +22,9 @@ void SettingsMenu::update(int index) {
       editingMatrixBrightness = true;
       break;
     case 5:
+      resettingScores = true;
+      break;
+    case 6:
       setGameState(GameState::MainMenu);
       break;
     default:
@@ -77,14 +80,14 @@ void SettingsMenu::editName(int pos, int letter, bool finished) {
     }
   }
 
-  if (letter == -1) {
+  if (letter == 1) {
     if (currentChar == 'A')
       currentChar = 'Z';
     else
       currentChar--;
   }
 
-  if (letter == 1) {
+  if (letter == -1) {
     if (currentChar == 'Z')
       currentChar = 'A';
     else
@@ -153,7 +156,7 @@ void SettingsMenu::editLevel(int exponent, int increment, bool finished) {
     lcd.print(" ");
   }
 
-  if (exponent == 1) {
+  if (exponent == -1) {
     if (level + 5 <= 10)
       level += 5;
     else
@@ -163,7 +166,7 @@ void SettingsMenu::editLevel(int exponent, int increment, bool finished) {
     lcd.print(" ");
   }
 
-  if (exponent == -1) {
+  if (exponent == 1) {
     if (level - 5 >= 1)
       level -= 5;
     else
@@ -220,7 +223,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
     analogWrite(contrastPin, contrast);
   }
 
-  if (exponent == 1) {
+  if (exponent == -1) {
     if (contrast + 25 <= 255)
       contrast += 25;
     else
@@ -231,7 +234,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
     analogWrite(contrastPin, contrast);
   }
 
-  if (exponent == -1) {
+  if (exponent == 1) {
     if (contrast - 25 >= 1)
       contrast -= 25;
     else
@@ -289,7 +292,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
     analogWrite(brightnessPin, lcdBrightness);
   }
 
-  if (exponent == 1) {
+  if (exponent == -1) {
     if (lcdBrightness + 25 <= 255)
       lcdBrightness += 25;
     else
@@ -300,7 +303,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
     analogWrite(brightnessPin, lcdBrightness);
   }
 
-  if (exponent == -1) {
+  if (exponent == 1) {
     if (lcdBrightness - 25 >= 1)
       lcdBrightness -= 25;
     else
@@ -359,7 +362,7 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
     lc.setIntensity(0, matrixBrightness);
   }
 
-  if (exponent == 1) {
+  if (exponent == -1) {
     if (matrixBrightness + 5 <= 15)
       matrixBrightness += 5;
     else
@@ -370,7 +373,7 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
     lc.setIntensity(0, matrixBrightness);
   }
 
-  if (exponent == -1) {
+  if (exponent == 1) {
     if (matrixBrightness - 5 >= 0)
       matrixBrightness -= 5;
     else
@@ -389,6 +392,49 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
   }
 }
 
+bool SettingsMenu::isResettingScores() {
+  return resettingScores;
+}
+
+void SettingsMenu::resetScores(int exponent, int increment, bool finished) {
+  if (!started) {
+    started = true;
+    choice = false;
+    lcd.clear();
+    lcd.setCursor(1, 0);
+    lcd.print("Are you sure?");
+    lcd.setCursor(0, 1);
+    lcd.print(">NO  YES");
+  }
+
+  if (increment == +1 && !choice) {
+    choice = true;
+    lcd.setCursor(0, 1);
+    lcd.print(" ");
+    lcd.setCursor(4, 1);
+    lcd.print(">");
+  }
+
+  if (increment == -1 && choice) {
+    choice = false;
+    lcd.setCursor(0, 1);
+    lcd.print(">");
+    lcd.setCursor(4, 1);
+    lcd.print(" ");
+  }
+
+  if (finished) {
+    if (choice) {
+      for (byte i = 0; i < 3; i++) {
+        for (byte j = 0; j < maxNameLength + sizeof(int); j++) {
+          EEPROM.write(highScoreAddress + j + i * (maxNameLength + sizeof(int)) , 0);
+        }
+      }
+    }
+    started = false;
+    resettingScores = false;
+  }
+}
 
 void SettingsMenu::displayIcon(uint64_t icon) {
   for (int i = 0; i < 8; i++) {

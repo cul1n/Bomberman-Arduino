@@ -8,6 +8,8 @@ class SettingsMenu : public Menu {
   bool editingContrast = false;
   bool editingLCDBrightness = false;
   bool editingMatrixBrightness = false;
+  bool resettingScores = false;
+  bool choice = false;
   String playerName = "";
   int level = 0;
   int contrast = 0;
@@ -41,6 +43,10 @@ class SettingsMenu : public Menu {
     bool isEditingMatrixBrightness() override;
 
     void editMatrixBrightness(int, int, bool);
+
+    bool isResettingScores() override;
+
+    void resetScores(int, int, bool);
 
     void displayIcon(uint64_t);
 };

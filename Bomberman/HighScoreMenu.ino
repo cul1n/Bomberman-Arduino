@@ -12,8 +12,8 @@ void HighScoreMenu::update(int index) {
 
 void HighScoreMenu::updateList(byte dummy) {
   for (byte i = 0; i < 3; i++) {
+    String score = String(i + 1) + ".";
     if (EEPROM.read(highScoreAddress + i * (maxNameLength + sizeof(int))) != 0) {
-      String score = String(i + 1) + ".";
       int scoreValue = 0;
       for (byte j = 0; j < maxNameLength; j++) {
         char c = EEPROM.read(highScoreAddress + i * (maxNameLength + sizeof(int)) + j);
@@ -22,7 +22,12 @@ void HighScoreMenu::updateList(byte dummy) {
       }
       score += " ";
       score += String(EEPROM.get(highScoreAddress + (i + 1) * maxNameLength + i * sizeof(int), scoreValue));
-      listOfOptions[i + 1] = score;
     }
+    
+    else {
+      score += noPlayer;
+    }
+
+    listOfOptions[i + 1] = score;
   }
 }

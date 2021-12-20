@@ -68,7 +68,7 @@ class Explosion : public Entity {
   byte spread;
   byte directionOfSpread;
   bool resolved;
-  unsigned long long int spawnTime;
+  unsigned long spawnTime;
   // TO DO: maybe smaller type
   int duration;
 

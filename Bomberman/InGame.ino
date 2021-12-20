@@ -11,11 +11,15 @@ InGame::InGame() : p(3, 0) {
   shop = false;
   shopDisplayed = false;
   score = 0;
+  
   bombBlinker = 0;
   enemyBlinker = 0;
+  playerBlinker = 0;
+  
   for (int i = 0; i < 3; i++) {
     items[i] = true;
   }
+  
   timePlayed = 0;
   bombsPlaced = 0;
   upgrade = false;
@@ -293,7 +297,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       shopDisplayed = true;
       shopIndex = 0;
     }
-    if (xChange == -1) {
+    if (yChange == -1) {
       if (shopIndex != 0) {
         tone(buzzerPin, 2000, 100);
         lcd.setCursor(shopIndex * 6, 1);
@@ -304,7 +308,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       }
     }
   
-    else if (xChange == 1) {
+    else if (yChange == 1) {
       if (shopIndex != 2) {
         tone(buzzerPin, 2000, 100);
         lcd.setCursor(shopIndex * 6, 1);
@@ -510,7 +514,7 @@ void InGame::matrixUpdate() {
       i--;
     }
     else {
-      matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 1;
+      matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = bombId;
     }
   }
 
@@ -560,15 +564,18 @@ void InGame::matrixUpdate() {
       
       enemies.getItem(i).setDirection(newDir);
       
-      if (matrix[enemies.getItem(i).getPos().getPosX()][enemies.getItem(i).getPos().getPosY()] == explosionId) {
+      if (matrix[enemies.getItem(i).getPos().getPosX()][enemies.getItem(i).getPos().getPosY()] != explosionId) {
+        matrix[enemies.getItem(i).getPos().getPosX()][enemies.getItem(i).getPos().getPosY()] = enemyId;
+      }
+    }
+  }
+  
+  for (int i = 0; i  < enemies.length; i++) {
+    if (matrix[enemies.getItem(i).getPos().getPosX()][enemies.getItem(i).getPos().getPosY()] == explosionId) {
         enemies.remove(i);
         score += 20;
         updateScore();
-      }
-      
-      else {
-        matrix[enemies.getItem(i).getPos().getPosX()][enemies.getItem(i).getPos().getPosY()] = enemyId;
-      }
+        i--;
     }
   }
 
@@ -714,13 +721,28 @@ void InGame::matrixUpdate() {
         else
           lc.setLed(0, row, col, 0);
       }
+
+      if (matrix[row][col] == playerId) {
+        if (playerBlinker > 5)
+          lc.setLed(0, row, col, matrix[row][col]);
+        else
+          lc.setLed(0, row, col, 0);
+      }
     }
   }
 
   bombBlinker++;
-  if (bombBlinker == 10)
+  if (bombBlinker == 10) {
     bombBlinker = 0;
+  }
+  
   enemyBlinker++;
-  if (enemyBlinker == 19)
+  if (enemyBlinker == 19) {
     enemyBlinker = 0;
+  }
+  
+  playerBlinker++;
+  if (playerBlinker == 25) {
+    playerBlinker = 0;
+  }
 }

@@ -32,10 +32,12 @@ class InGame : public State {
   
   byte bombBlinker;
   byte enemyBlinker;
+  byte playerBlinker;
 
   int timePlayed;
   int bombsPlaced;
   bool upgrade;
+  
   byte matrix[8][8];
   
   public:

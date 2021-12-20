@@ -21,6 +21,8 @@ class State {
   virtual void playerController(int, int, bool) {}
   virtual bool isGameOver() {return false;}
   virtual void updateList(byte) {}
+  virtual bool isResettingScores() {return false;}
+  virtual void resetScores(int, int, bool) {};
 };
 
 

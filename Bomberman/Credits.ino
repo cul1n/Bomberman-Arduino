@@ -11,7 +11,7 @@ void Credits::update(int index) {
 }
 
 void Credits::updateList(byte index) {
-  if (index == 2) {
+  if (index == 2 && counter % 2 == 0) {
     String link = listOfOptions[index];
     char firstChar = link[0];
     for(int i = 0; i < link.length() - 1; i++ ) {
@@ -22,4 +22,5 @@ void Credits::updateList(byte index) {
     lcd.setCursor(1,0);
     lcd.print(listOfOptions[index]);
   }
+  counter++;
 }

@@ -39,7 +39,7 @@ const byte statsSpreadAddress = statsDamageTakenAddress + sizeof(byte);
 LiquidCrystal lcd(RS,enable,d4,d5,d6,d7);
 LedControl lc = LedControl(dinPin, clockPin, loadPin, 1); //DIN, CLK, LOAD, No. DRIVER
 
-
+const String noPlayer = "NON 0";
 
 const uint64_t animation[] PROGMEM = {
   0x387c7c7c38120f02,
@@ -121,8 +121,6 @@ int pos, letter = 0;
 byte pressCounter = 0;
 
 void setup() {
-  analogWrite(contrastPin, 20);
-  analogWrite(brightnessPin, 60);
   pinMode(swPin, INPUT_PULLUP);
   pinMode(buzzerPin, OUTPUT);
   // set up the LCD's number of columns and rows:
@@ -136,6 +134,12 @@ void setup() {
   lcd.createChar(1, heartGlyph);
   lcd.createChar(2, bombGlyph);
   lcd.createChar(3, bonusSpreadGlyph);
+
+  int intType = 0;
+  analogWrite(contrastPin, EEPROM.get(contrastAddress, intType));
+  analogWrite(brightnessPin, EEPROM.get(lcdBrightnessAddress, intType));
+  lc.setIntensity(0, EEPROM.get(matrixBrightnessAddress, intType));
+
   
   Serial.begin(9600);
 
@@ -197,7 +201,7 @@ void loop() {
       editOption();
       lastMoved = millis();
     }
-    getGameState().editName(pos, letter, finished);
+    getGameState().editName(letter, pos, finished);
     pos = 0;
     letter = 0;
     finished = false;
@@ -239,6 +243,16 @@ void loop() {
       lastMoved = millis();
     }
     getGameState().editMatrixBrightness(pos, letter, finished);
+    pos = 0;
+    letter = 0;
+    finished = false;
+  }
+  else if (getGameState().isResettingScores()) {
+    if (millis() - lastMoved > moveInterval) {
+      editOption();
+      lastMoved = millis();
+    }
+    getGameState().resetScores(pos, letter, finished);
     pos = 0;
     letter = 0;
     finished = false;
@@ -300,28 +314,28 @@ void editOption() {
 
 
 void updateMenu() {
-  int yValue = analogRead(yPin);
+  int xValue = analogRead(xPin);
   bool swState = digitalRead(swPin);
   lastIndex = index;
   
-  if (yValue > maxThreshold) {
-    if (index == 0) {
-      //index = options - 1;
-    } 
-    else {
-      tone(buzzerPin, 2000, 100);
-      index--;
-    }
-    change = true;
-  }
-
-  if (yValue < minThreshold) {
+  if (xValue > maxThreshold) {
     if (index == options - 1) {
       //index = 0;
     } 
     else {
       tone(buzzerPin, 2000, 100);
       index++;
+    }
+    change = true;    
+  }
+
+  if (xValue < minThreshold) {
+    if (index == 0) {
+      //index = options - 1;
+    } 
+    else {
+      tone(buzzerPin, 2000, 100);
+      index--;
     }
     change = true;
   }
