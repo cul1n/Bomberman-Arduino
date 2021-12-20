@@ -41,4 +41,6 @@ class SettingsMenu : public Menu {
     bool isEditingMatrixBrightness() override;
 
     void editMatrixBrightness(int, int, bool);
+
+    void displayIcon(uint64_t);
 };

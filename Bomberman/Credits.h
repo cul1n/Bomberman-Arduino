@@ -6,4 +6,6 @@ class Credits : public Menu {
     Credits(int number, String *list) : Menu(number, list) {};
 
     void update(int);
+
+    void updateList(byte) override;
 };

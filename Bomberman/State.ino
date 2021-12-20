@@ -10,7 +10,7 @@
 String listMainMenu[4] = {"Play", "Settings", "High Score", "Credits"};
 String listHighScore[5] = {"High Scores:", "NON 0", "NON 0", "NON 0", "Back"};
 String listSettingsMenu[6] = {"Name", "Level", "Contrast", "LCD Brightness", "Mtrx Brghtnss", "Back"};
-String listCredits[4] = {"Bomberman", "Calin Hirhui", "Link", "Back"};
+String listCredits[4] = {"Bomberman", "Calin Hirhui", "github.com/cul1n/Bomberman-Arduino  ", "Back"};
 String listIntro[2] = {"Bomberman", "Loading.."};
 
 Intro intro(2, listIntro);

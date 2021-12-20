@@ -49,11 +49,11 @@ const uint64_t animation[] PROGMEM = {
 
 const int lengthOfAnimation = sizeof(animation)/8;
 
-const uint64_t playIcon = 0x3c4a99b9b9994a3c;
-const uint64_t settingsIcon = 0x000456a7a7560400;
-const uint64_t highScoreIcon = 0x3c18187ebdbdff3c;
-const uint64_t creditsIcon = 0x1818001870667e3c;
-
+const uint64_t playIcon PROGMEM = 0x3c4a99b9b9994a3c;
+const uint64_t settingsIcon PROGMEM = 0x000456a7a7560400;
+const uint64_t highScoreIcon PROGMEM = 0x3c18187ebdbdff3c;
+const uint64_t creditsIcon PROGMEM = 0x1818001870667e3c;
+const uint64_t brightnessIcon PROGMEM = 0x18183c5a5a5a423c;
 
 byte hourGlassGlyph[] = {
   B11111,
@@ -238,6 +238,7 @@ void loop() {
     if (millis() - lastMoved > moveInterval) {
       updateMenu();
       lastMoved = millis();
+      getGameState().render(index, lastIndex);
     }
   
     if (change) {

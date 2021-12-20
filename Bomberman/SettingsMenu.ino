@@ -324,6 +324,7 @@ bool SettingsMenu::isEditingMatrixBrightness() {
 
 void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finished) {
   if (!started) {
+    displayIcon(brightnessIcon);
     started = true;
     matrixBrightness = EEPROM.read(matrixBrightnessAddress);
     if (!matrixBrightness)
@@ -381,8 +382,21 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
   }
 
   if (finished) {
+    displayIcon(settingsIcon);
     started = false;
     editingMatrixBrightness = false;
     EEPROM.put(matrixBrightnessAddress, matrixBrightness);
+  }
+}
+
+
+void SettingsMenu::displayIcon(uint64_t icon) {
+  for (int i = 0; i < 8; i++) {
+    byte row = (icon >> i * 8) & 0xFF;
+    
+    for (int j = 0; j < 8; j++) {
+      lc.setLed(0, i, j, bitRead(row, j));
+    }
+    
   }
 }

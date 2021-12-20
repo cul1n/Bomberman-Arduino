@@ -13,7 +13,7 @@ void HighScoreMenu::update(int index) {
 void HighScoreMenu::updateList(byte dummy) {
   for (byte i = 0; i < 3; i++) {
     if (EEPROM.read(highScoreAddress + i * (maxNameLength + sizeof(int))) != 0) {
-      String score = "";
+      String score = String(i + 1) + ".";
       int scoreValue = 0;
       for (byte j = 0; j < maxNameLength; j++) {
         char c = EEPROM.read(highScoreAddress + i * (maxNameLength + sizeof(int)) + j);
