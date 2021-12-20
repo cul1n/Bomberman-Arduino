@@ -9,12 +9,13 @@ const int loadPin = 10;
 
 const int RS = 8;
 const int enable = 9;
-const int contrastPin = 13;
+const int contrastPin = 1;
 const int brightnessPin = 6;
-const int d4 = 5;
+const int d4 = 13; // era 5
 const int d5 = 4;
 const int d6 = 3;
 const int d7 = 2;
+const int buzzerPin = 5;
 
 const int xPin = A0;
 const int yPin = A1;
@@ -35,7 +36,7 @@ LedControl lc = LedControl(dinPin, clockPin, loadPin, 1); //DIN, CLK, LOAD, No. 
 
 
 
-const uint64_t animation[] = {
+const uint64_t animation[] PROGMEM = {
   0x387c7c7c38120f02,
   0x387c7c7c38140e04,
   0x387c7c7c38100c0c,
@@ -117,6 +118,7 @@ void setup() {
   analogWrite(contrastPin, 20);
   analogWrite(brightnessPin, 60);
   pinMode(swPin, INPUT_PULLUP);
+  pinMode(buzzerPin, OUTPUT);
   // set up the LCD's number of columns and rows:
   lcd.begin(16,2);
 
@@ -136,8 +138,11 @@ void setup() {
   getGameState().render(0, -1);
 
   for (int index = 0; index < lengthOfAnimation; index++) {
+    uint64_t image;
+    memcpy_P(&image, &animation[index], 8);
+    
     for (int i = 0; i < 8; i++) {
-      byte row = (animation[index] >> i * 8) & 0xFF;
+      byte row = (image >> i * 8) & 0xFF;
       for (int j = 0; j < 8; j++) {
         lc.setLed(0, i, j, bitRead(row, j));
       }
@@ -230,7 +235,6 @@ void loop() {
     finished = false;
   } 
   else {
-    //Serial.println(index);
     if (millis() - lastMoved > moveInterval) {
       updateMenu();
       lastMoved = millis();
@@ -295,6 +299,7 @@ void updateMenu() {
       //index = options - 1;
     } 
     else {
+      tone(buzzerPin, 2000, 100);
       index--;
     }
     change = true;
@@ -305,12 +310,14 @@ void updateMenu() {
       //index = 0;
     } 
     else {
+      tone(buzzerPin, 2000, 100);
       index++;
     }
     change = true;
   }
 
   if (swState == LOW && swState != lastSwState) {
+    tone(buzzerPin, 1000, 150);
     nextMenu = true;
   }
 

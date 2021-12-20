@@ -40,6 +40,7 @@ byte Player::getExplosionSpread() {
 
 void Player::loseHealth() {
   if (millis() - invincibilityTime > invincibilityDuration) {
+    tone(buzzerPin, 200, 300);
     health -= 1;
     invincibilityTime = millis();
   }

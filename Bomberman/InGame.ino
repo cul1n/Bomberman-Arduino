@@ -277,6 +277,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     }
     if (xChange == -1) {
       if (shopIndex != 0) {
+        tone(buzzerPin, 2000, 100);
         lcd.setCursor(shopIndex * 6, 1);
         lcd.print(" ");
         shopIndex--;
@@ -287,6 +288,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
   
     else if (xChange == 1) {
       if (shopIndex != 2) {
+        tone(buzzerPin, 2000, 100);
         lcd.setCursor(shopIndex * 6, 1);
         lcd.print(" ");
         shopIndex++;
@@ -325,8 +327,11 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
             for (int i = 0; i < 3; i++) {
               items[i] = true;
             }
-                        
+            tone(buzzerPin, 1000, 150);            
             shop = false;             
+          }
+          else {
+            tone(buzzerPin, 500, 150);
           }
           break;
         }
@@ -353,9 +358,11 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
             for (int i = 0; i < 3; i++) {
               items[i] = true;
             }
-          
+            tone(buzzerPin, 1000, 150);
             shop = false;
-
+          }
+          else {
+            tone(buzzerPin, 500, 150);
           }
           
           break;
@@ -367,7 +374,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
           for (int i = 0; i < 3; i++) {
             items[i] = true;
           }
-          
+          tone(buzzerPin, 1000, 150);
           break;
         }
         
@@ -410,6 +417,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     }
     
     if (swChange && bombs.length < p.getNumberOfBombs()) {
+      tone(buzzerPin, 1000, 100);
       Bomb bomb(p.getPos().getPosX(), p.getPos().getPosY());
       bombSpawned = true;
       matrix[bomb.getPos().getPosX()][bomb.getPos().getPosY()] = 1;
@@ -448,6 +456,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     if (xLastPos != p.getPos().getPosX() || yLastPos != p.getPos().getPosY()) {
       if (matrix[p.getPos().getPosX()][p.getPos().getPosY()] == gateId) {
         if (currentRoom == 1) { //ATENTIE = LEVEL
+          tone(buzzerPin, 2500, 100);
           score += (maxTime - (millis() - startTime) / 1000);
           level++;
           levelStarted = true; 
@@ -474,6 +483,7 @@ void InGame::matrixUpdate() {
 
       matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 0;
       bombs.remove(i);
+      tone(buzzerPin, 100, 400);
       updateBombs();
       i--;
     }
@@ -669,8 +679,9 @@ void InGame::matrixUpdate() {
         lc.setLed(0, row, col, 0);
 
       if (matrix[row][col] == bombId) {
-        if (bombBlinker > 3)
+        if (bombBlinker > 3) {
           lc.setLed(0, row, col, matrix[row][col]);
+        }
         else
           lc.setLed(0, row, col, 0); 
       }
