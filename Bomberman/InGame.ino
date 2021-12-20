@@ -16,6 +16,9 @@ InGame::InGame() : p(3, 0) {
   for (int i = 0; i < 3; i++) {
     items[i] = true;
   }
+  timePlayed = 0;
+  bombsPlaced = 0;
+  upgrade = false;
 }
 
 void InGame::render(int index, int lastIndex) {
@@ -41,20 +44,20 @@ bool InGame::isPlaying() {
 }
 
 void InGame::generateRoom() {
-  p.setPos(3, 0);
-  matrix[3][0] = playerId;
-  for (byte i = 1; i < 7; i++) {
-    for (byte j = 1 ; j < 7; j++) {
+  for (byte i = 0; i < 8; i++) {
+    for (byte j = 0 ; j < 8; j++) {
       matrix[i][j] = 0;
+      if (i == 0 || j == 0 || i == 7 || j ==7) {
+        matrix[i][j] = solidWallId;
+      }
     }
   }
-  // TO DO: make enter gate switch places
-  matrix[0][3] = solidWallId;
-  matrix[0][4] = solidWallId;
-  matrix[3][7] = solidWallId;
-  matrix[4][7] = solidWallId;
-  matrix[7][3] = solidWallId;
-  matrix[7][4] = solidWallId;
+
+  matrix[3][0] = 0;
+  matrix[4][0] = 0;
+
+  p.setPos(3, 0);
+  matrix[3][0] = playerId;
   
   byte gatePosition = random(3);
   
@@ -156,6 +159,7 @@ void InGame::updateHighScore(int currentScore) {
     EEPROM.put(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int) , EEPROM.get(highScoreAddress + 2 * maxNameLength + sizeof(int), intType));
     EEPROM.put(highScoreAddress + 2 * maxNameLength + sizeof(int) , EEPROM.get(highScoreAddress + maxNameLength, intType));
     EEPROM.put(highScoreAddress + maxNameLength, currentScore);
+    EEPROM.put(statsHighScoreAddress, true);
   }
   
   else if (currentScore > EEPROM.get(highScoreAddress + 2 * maxNameLength + sizeof(int), intType)) {
@@ -165,6 +169,7 @@ void InGame::updateHighScore(int currentScore) {
     }
     EEPROM.put(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int) , EEPROM.get(highScoreAddress + 2 * maxNameLength + sizeof(int), intType));
     EEPROM.put(highScoreAddress + 2 * maxNameLength + sizeof(int) , currentScore);
+    EEPROM.put(statsHighScoreAddress, true);
   }
 
   else if (currentScore > EEPROM.get(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int), intType)) {
@@ -172,6 +177,10 @@ void InGame::updateHighScore(int currentScore) {
       EEPROM.put(i + 2 * (maxNameLength + sizeof(int)), playerName[i - highScoreAddress]);
     }
     EEPROM.put(highScoreAddress + 3 * maxNameLength + 2 * sizeof(int) , currentScore);
+    EEPROM.put(statsHighScoreAddress, true);
+  }
+  else {
+    EEPROM.put(statsHighScoreAddress, false);
   }
   
 }
@@ -191,7 +200,12 @@ void InGame::gameOver() {
   levelStarted = true;
   nextRoom = true;
   updateHighScore(score);
-  EEPROM.put(statsAddress, level);
+  timePlayed += (millis() - startTime) / 1000;
+  EEPROM.put(statsLevelAddress, level);
+  EEPROM.put(statsScoreAddress, score);
+  EEPROM.put(statsTimeAddress, timePlayed);
+  EEPROM.put(statsBombsAddress, bombsPlaced);
+  EEPROM.put(statsSpreadAddress, upgrade);
   setGameState(GameState::GameOver);
 }
 
@@ -213,6 +227,10 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
 
     int intType = 0;
     level = EEPROM.get(levelAddress, intType);
+    timePlayed = 0;
+    bombsPlaced = 0;
+    EEPROM.put(statsDamageTakenAddress, 0);
+    upgrade = false;
     if (level == 0)
       level = 1;
     gameStarted = false;
@@ -322,6 +340,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
             
             else if (i == 2) {
               p.setStats(p.getPlayerHealth(), p.getNumberOfBombs(), p.getExplosionSpread() + 1);
+              upgrade = true;
             }
 
             for (int i = 0; i < 3; i++) {
@@ -353,6 +372,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
             }
             else if (i == 2) {
               p.setStats(p.getPlayerHealth(), p.getNumberOfBombs(), p.getExplosionSpread() + 1);
+              upgrade = true;
             }
             
             for (int i = 0; i < 3; i++) {
@@ -423,6 +443,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       matrix[bomb.getPos().getPosX()][bomb.getPos().getPosY()] = 1;
       bombs.append(bomb);
       updateBombs();
+      bombsPlaced++;
     }
   
     if (xChange == -1) {
@@ -457,6 +478,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       if (matrix[p.getPos().getPosX()][p.getPos().getPosY()] == gateId) {
         if (currentRoom == 1) { //ATENTIE = LEVEL
           tone(buzzerPin, 2500, 100);
+          timePlayed += (millis() - startTime) / 1000;
           score += (maxTime - (millis() - startTime) / 1000);
           level++;
           levelStarted = true; 

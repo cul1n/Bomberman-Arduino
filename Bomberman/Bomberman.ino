@@ -28,8 +28,13 @@ const byte contrastAddress = levelAddress + sizeof(int);
 const byte lcdBrightnessAddress = contrastAddress + sizeof(int);
 const byte matrixBrightnessAddress = lcdBrightnessAddress + sizeof(int);
 const byte highScoreAddress = matrixBrightnessAddress + sizeof(int);
-const byte statsAddress = highScoreAddress + 3 * (maxNameLength + sizeof(int));
-
+const byte statsLevelAddress = highScoreAddress + 3 * (maxNameLength + sizeof(int));
+const byte statsHighScoreAddress = statsLevelAddress + sizeof(byte);
+const byte statsScoreAddress = statsHighScoreAddress + sizeof(bool);
+const byte statsTimeAddress = statsScoreAddress + sizeof(int);
+const byte statsBombsAddress = statsTimeAddress + sizeof(int);
+const byte statsDamageTakenAddress = statsBombsAddress + sizeof(int);
+const byte statsSpreadAddress = statsDamageTakenAddress + sizeof(byte);
 
 LiquidCrystal lcd(RS,enable,d4,d5,d6,d7);
 LedControl lc = LedControl(dinPin, clockPin, loadPin, 1); //DIN, CLK, LOAD, No. DRIVER
@@ -113,6 +118,7 @@ bool nextMenu = false;
 bool currentlyInMain = true;
 bool finished = false;
 int pos, letter = 0;
+byte pressCounter = 0;
 
 void setup() {
   analogWrite(contrastPin, 20);
@@ -167,11 +173,14 @@ void loop() {
       editOption();
       lastMoved = millis();
     }
-    
-    if (finished) 
-      getGameState().render(0, 1);
-    else 
-      getGameState().render(0, 0);
+    if (finished) {
+      pressCounter++;
+    }
+    getGameState().render(0, pressCounter);
+
+    if (pressCounter == 2) {
+      pressCounter = 0;
+    }
 
     options = getGameState().getNumberOfOptions();
     pos = 0;
@@ -233,7 +242,7 @@ void loop() {
     pos = 0;
     letter = 0;
     finished = false;
-  } 
+  }
   else {
     if (millis() - lastMoved > moveInterval) {
       updateMenu();

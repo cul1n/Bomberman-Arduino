@@ -40,6 +40,8 @@ byte Player::getExplosionSpread() {
 
 void Player::loseHealth() {
   if (millis() - invincibilityTime > invincibilityDuration) {
+    byte byteType = 0;
+    EEPROM.put(statsDamageTakenAddress, EEPROM.get(statsDamageTakenAddress, byteType) + 1);
     tone(buzzerPin, 200, 300);
     health -= 1;
     invincibilityTime = millis();

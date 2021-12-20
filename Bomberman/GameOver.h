@@ -10,6 +10,4 @@ class GameOver : public State {
     void render(int, int);
 
     bool isGameOver() override;
-
-    //void setLevel(byte);
 };

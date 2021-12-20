@@ -32,16 +32,11 @@ class InGame : public State {
   
   byte bombBlinker;
   byte enemyBlinker;
-  byte matrix[8][8] = {
-    {4, 4, 4, 4, 4, 4, 4, 4},
-    {4, 0, 0, 0, 0, 0, 0, 4},
-    {4, 0, 0, 0, 0, 0, 0, 4},
-    {0, 0, 0, 0, 0, 0, 0, 4},
-    {0, 0, 0, 0, 0, 0, 0, 4},
-    {4, 0, 0, 0, 0, 0, 0, 4},
-    {4, 0, 0, 0, 0, 0, 0, 4},
-    {4, 4, 4, 4, 4, 4, 4, 4} 
-  };
+
+  int timePlayed;
+  int bombsPlaced;
+  bool upgrade;
+  byte matrix[8][8];
   
   public:
     InGame();
