@@ -40,9 +40,9 @@ void SettingsMenu::editName(int pos, int letter, bool finished) {
   if (!started) {
     playerName = "";
     for (int i = nameAddress; i < nameAddress + maxNameLength; i++) {
-      char c = EEPROM.read(i);
-      if (c != 0) {
-        playerName += c;
+      char character = EEPROM.read(i);
+      if (character != 0) {
+        playerName += character;
       }
     }
     if (!playerName.length())
@@ -50,7 +50,7 @@ void SettingsMenu::editName(int pos, int letter, bool finished) {
 
     lcd.clear();
     lcd.setCursor(1, 0);
-    lcd.print("Enter Name:");
+    lcd.print(F("Enter Name:"));
     lcd.setCursor(1, 1);
     lcd.print(playerName);
     started = true;
@@ -81,17 +81,21 @@ void SettingsMenu::editName(int pos, int letter, bool finished) {
   }
 
   if (letter == 1) {
-    if (currentChar == 'A')
+    if (currentChar == 'A') {
       currentChar = 'Z';
-    else
+    }
+    else {
       currentChar--;
+    }
   }
 
   if (letter == -1) {
-    if (currentChar == 'Z')
+    if (currentChar == 'Z') {
       currentChar = 'A';
-    else
+    }
+    else {
       currentChar++;
+    }
   }
 
 
@@ -131,7 +135,7 @@ void SettingsMenu::editLevel(int exponent, int increment, bool finished) {
 
     lcd.clear();
     lcd.setCursor(1, 0);
-    lcd.print("Enter Level:");
+    lcd.print(F("Enter Level:"));
     lcd.setCursor(1, 1);
     lcd.print(level);
   }
@@ -143,7 +147,7 @@ void SettingsMenu::editLevel(int exponent, int increment, bool finished) {
       level++;
     lcd.setCursor(1, 1);
     lcd.print(level);
-    lcd.print(" ");
+    lcd.print(F(" "));
   }
 
   if (increment == -1) {
@@ -153,7 +157,7 @@ void SettingsMenu::editLevel(int exponent, int increment, bool finished) {
       level--;
     lcd.setCursor(1, 1);
     lcd.print(level);
-    lcd.print(" ");
+    lcd.print(F(" "));
   }
 
   if (exponent == -1) {
@@ -163,7 +167,7 @@ void SettingsMenu::editLevel(int exponent, int increment, bool finished) {
       level -= 5;
     lcd.setCursor(1, 1);
     lcd.print(level);
-    lcd.print(" ");
+    lcd.print(F(" "));
   }
 
   if (exponent == 1) {
@@ -173,7 +177,7 @@ void SettingsMenu::editLevel(int exponent, int increment, bool finished) {
       level += 5;
     lcd.setCursor(1, 1);
     lcd.print(level);
-    lcd.print(" ");
+    lcd.print(F(" "));
   }
 
   if (finished) {
@@ -196,7 +200,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
 
     lcd.clear();
     lcd.setCursor(1, 0);
-    lcd.print("Enter Contrast:");
+    lcd.print(F("Enter Contrast:"));
     lcd.setCursor(1, 1);
     lcd.print(contrast);
   }
@@ -208,7 +212,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
       contrast++;
     lcd.setCursor(1, 1);
     lcd.print(contrast);
-    lcd.print("   ");
+    lcd.print(F("   "));
     analogWrite(contrastPin, contrast);
   }
 
@@ -219,7 +223,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
       contrast--;
     lcd.setCursor(1, 1);
     lcd.print(contrast);
-    lcd.print("   ");
+    lcd.print(F("   "));
     analogWrite(contrastPin, contrast);
   }
 
@@ -230,7 +234,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
       contrast -= 230;
     lcd.setCursor(1, 1);
     lcd.print(contrast);
-    lcd.print("   ");
+    lcd.print(F("   "));
     analogWrite(contrastPin, contrast);
   }
 
@@ -241,7 +245,7 @@ void SettingsMenu::editContrast(int exponent, int increment, bool finished) {
       contrast += 230;
     lcd.setCursor(1, 1);
     lcd.print(contrast);
-    lcd.print("   ");
+    lcd.print(F("   "));
     analogWrite(contrastPin, contrast);
   }
 
@@ -265,7 +269,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
 
     lcd.clear();
     lcd.setCursor(1, 0);
-    lcd.print("LCD Brightness:");
+    lcd.print(F("LCD Brightness:"));
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
   }
@@ -277,7 +281,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
       lcdBrightness++;
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
-    lcd.print("   ");
+    lcd.print(F("   "));
     analogWrite(brightnessPin, lcdBrightness);
   }
 
@@ -288,7 +292,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
       lcdBrightness--;
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
-    lcd.print("   ");
+    lcd.print(F("   "));
     analogWrite(brightnessPin, lcdBrightness);
   }
 
@@ -299,7 +303,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
       lcdBrightness -= 230;
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
-    lcd.print("   ");
+    lcd.print(F("   "));
     analogWrite(brightnessPin, lcdBrightness);
   }
 
@@ -310,7 +314,7 @@ void SettingsMenu::editLCDBrightness(int exponent, int increment, bool finished)
       lcdBrightness += 230;
     lcd.setCursor(1, 1);
     lcd.print(lcdBrightness);
-    lcd.print("   ");
+    lcd.print(F("   "));
     analogWrite(brightnessPin, lcdBrightness);
   }
 
@@ -335,7 +339,7 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
 
     lcd.clear();
     lcd.setCursor(1, 0);
-    lcd.print("Matrix Brightness:");
+    lcd.print(F("Matrix Brightness:"));
     lcd.setCursor(1, 1);
     lcd.print(matrixBrightness);
   }
@@ -347,7 +351,7 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
       matrixBrightness++;
     lcd.setCursor(1, 1);
     lcd.print(matrixBrightness);
-    lcd.print("   ");
+    lcd.print(F("   "));
     lc.setIntensity(0, matrixBrightness);
   }
 
@@ -358,7 +362,7 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
       matrixBrightness--;
     lcd.setCursor(1, 1);
     lcd.print(matrixBrightness);
-    lcd.print("   ");
+    lcd.print(F("   "));
     lc.setIntensity(0, matrixBrightness);
   }
 
@@ -369,7 +373,7 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
       matrixBrightness -= 10;
     lcd.setCursor(1, 1);
     lcd.print(matrixBrightness);
-    lcd.print("   ");
+    lcd.print(F("   "));
     lc.setIntensity(0, matrixBrightness);
   }
 
@@ -380,7 +384,7 @@ void SettingsMenu::editMatrixBrightness(int exponent, int increment, bool finish
       matrixBrightness += 10;
     lcd.setCursor(1, 1);
     lcd.print(matrixBrightness);
-    lcd.print("   ");
+    lcd.print(F("   "));
     lc.setIntensity(0, matrixBrightness);
   }
 
@@ -402,25 +406,25 @@ void SettingsMenu::resetScores(int exponent, int increment, bool finished) {
     choice = false;
     lcd.clear();
     lcd.setCursor(1, 0);
-    lcd.print("Are you sure?");
+    lcd.print(F("Are you sure?"));
     lcd.setCursor(0, 1);
-    lcd.print(">NO  YES");
+    lcd.print(F(">NO  YES"));
   }
 
   if (increment == +1 && !choice) {
     choice = true;
     lcd.setCursor(0, 1);
-    lcd.print(" ");
+    lcd.print(F(" "));
     lcd.setCursor(4, 1);
-    lcd.print(">");
+    lcd.print(F(">"));
   }
 
   if (increment == -1 && choice) {
     choice = false;
     lcd.setCursor(0, 1);
-    lcd.print(">");
+    lcd.print(F(">"));
     lcd.setCursor(4, 1);
-    lcd.print(" ");
+    lcd.print(F(" "));
   }
 
   if (finished) {
@@ -437,10 +441,10 @@ void SettingsMenu::resetScores(int exponent, int increment, bool finished) {
 }
 
 void SettingsMenu::displayIcon(uint64_t icon) {
-  for (int i = 0; i < 8; i++) {
-    byte row = (icon >> i * 8) & 0xFF;
+  for (int i = 0; i < numberOfBytes; i++) {
+    byte row = (icon >> i * numberOfBytes) & 0xFF;
     
-    for (int j = 0; j < 8; j++) {
+    for (int j = 0; j < numberOfBytes; j++) {
       lc.setLed(0, i, j, bitRead(row, j));
     }
     

@@ -27,7 +27,6 @@ State* currentState = &intro;
 State& getGameState() { return *currentState; }
 
 void setGameState(GameState newState) {
-  //currentState->render(0, -1);
 
   switch (newState) {
     case GameState::Intro:

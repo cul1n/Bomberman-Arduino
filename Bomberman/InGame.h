@@ -3,14 +3,6 @@
 #include "Entity.h"
 #include "List.h"
 
-const byte bombId = 1;
-const byte explosionId = 2;
-const byte breakableWallId = 3;
-const byte solidWallId = 4;
-const byte playerId = 5;
-const byte gateId = 6;
-const byte enemyId = 7;
-
 class InGame : public State {
   Player p;
   ShortList<Bomb> bombs;
@@ -21,24 +13,26 @@ class InGame : public State {
   bool nextRoom;
   bool shop;
   bool shopDisplayed;
-  char playerName[7];
+  char playerName[maxNameLength + 1];
   unsigned long long int startTime;
   int maxTime;
   byte level;
   byte currentRoom;
   int score;
   byte shopIndex;
-  bool items[3];
-  
+  bool items[numberOfItems];
+
+  // Animation timers
   byte bombBlinker;
   byte enemyBlinker;
   byte playerBlinker;
 
+  // Variables used to keep track of stats
   int timePlayed;
   int bombsPlaced;
   bool upgrade;
   
-  byte matrix[8][8];
+  byte matrix[matrixSize][matrixSize];
   
   public:
     InGame();

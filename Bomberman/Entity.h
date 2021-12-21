@@ -68,9 +68,8 @@ class Explosion : public Entity {
   byte spread;
   byte directionOfSpread;
   bool resolved;
-  unsigned long spawnTime;
-  // TO DO: maybe smaller type
-  int duration;
+  byte spawnTime;
+  byte duration;
 
   public:
     Explosion();
@@ -86,15 +85,4 @@ class Explosion : public Entity {
     void setResolved();
 
     bool stillActive();
-};
-
-class Wall : public Entity {
-  bool breakable;
-
-  public:
-    Wall();
-
-    Wall(byte, byte, bool);
-
-    bool isBreakable();
 };

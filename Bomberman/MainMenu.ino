@@ -35,10 +35,10 @@ void MainMenu::updateList(byte index) {
 }
 
 void MainMenu::displayIcon(uint64_t icon) {
-  for (int i = 0; i < 8; i++) {
-    byte row = (icon >> i * 8) & 0xFF;
+  for (int i = 0; i < numberOfBytes; i++) {
+    byte row = (icon >> i * numberOfBytes) & 0xFF;
     
-    for (int j = 0; j < 8; j++) {
+    for (int j = 0; j < numberOfBytes; j++) {
       lc.setLed(0, i, j, bitRead(row, j));
     }
     

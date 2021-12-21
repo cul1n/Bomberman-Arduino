@@ -14,7 +14,7 @@ T& List<T>::getItem(byte index) {
 
 template <typename T>
 void List<T>::append(T item) {
-    if (length < 16) data[length++] = item;
+    if (length < longListLength) data[length++] = item;
 }
 
 template <typename T>
@@ -39,7 +39,7 @@ T& ShortList<T>::getItem(byte index) {
 
 template <typename T>
 void ShortList<T>::append(T item) {
-    if (length < 16) data[length++] = item;
+    if (length < shortListLength) data[length++] = item;
 }
 
 template <typename T>

@@ -40,10 +40,11 @@ byte Player::getExplosionSpread() {
 
 void Player::loseHealth() {
   if (millis() - invincibilityTime > invincibilityDuration) {
-    byte byteType = 0;
-    EEPROM.put(statsDamageTakenAddress, EEPROM.get(statsDamageTakenAddress, byteType) + 1);
-    tone(buzzerPin, 200, 300);
-    health -= 1;
+    byte damageTaken = EEPROM.read(statsDamageTakenAddress);
+    damageTaken++;
+    EEPROM.put(statsDamageTakenAddress, damageTaken);
+    playSound(damageTakenFrequency, damageTakenDuration);
+    health--;
     invincibilityTime = millis();
   }
 }
@@ -73,12 +74,12 @@ void Enemy::setDirection(byte dir) {
 
 Bomb::Bomb() : Entity(0, 0) {
   spawnTime = millis();
-  duration = 3000;  
+  duration = bombTimer;  
 }
 
 Bomb::Bomb(byte x, byte y) : Entity(x, y) {
   spawnTime = millis();
-  duration = 3000;  
+  duration = bombTimer;
 }
 
 bool Bomb::stillActive() {
@@ -89,11 +90,11 @@ bool Bomb::stillActive() {
 }
 
 Explosion::Explosion() : Entity(0, 0) {
-  spread = 1;
+  spread = defaultExplosionSpread;
   directionOfSpread = 0;
   resolved = false;
-  spawnTime = millis();
-  duration = 1000; 
+  spawnTime = 0;
+  duration = explosionTimer;
 }
 
 Explosion::Explosion(byte x, byte y, byte spread, byte directionOfSpread) : Entity(x, y) {
@@ -103,8 +104,8 @@ Explosion::Explosion(byte x, byte y, byte spread, byte directionOfSpread) : Enti
     this->resolved = true;
   else
     this->resolved = false;
-  this->spawnTime = millis();
-  this->duration = 1000; 
+  this->spawnTime = 0;
+  this->duration = explosionTimer;
 }
 
 byte Explosion::getSpread() {
@@ -124,21 +125,9 @@ void Explosion::setResolved() {
 }
 
 bool Explosion::stillActive() {
-  if (millis() - spawnTime >= duration) {
+  if (spawnTime >= duration) {
     return false;
   }
+  spawnTime++;
   return true;
-}
-
-
-Wall::Wall() : Entity(0, 0) {
-  breakable = false; 
-}
-
-Wall::Wall(byte x, byte y, bool breakable) : Entity(x, y) {
-  this->breakable = breakable; 
-}
-
-bool Wall::isBreakable() {
-  return breakable;
 }

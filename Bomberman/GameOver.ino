@@ -7,59 +7,58 @@ GameOver::GameOver() {
   level = 1;
 }
 
-void GameOver::render(int dummy1, int buttonPressed) {
-  if (started == false && buttonPressed == 0) {
+void GameOver::render(int dummy1, int screen) {
+  if (started == false && screen == 0) {
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Congrats! You've");
+    lcd.print(F("Congrats! You've"));
     lcd.setCursor(0, 1);
-    lcd.print("reached ");
+    lcd.print(F("reached "));
     level = EEPROM.read(statsLevelAddress);
-    if (level == 10) {
-      lcd.print("the end!");
+    if (level == maxLevel + 1) {
+      lcd.print(F("the end!"));
     }
     else {
-      lcd.print("level ");
+      lcd.print(F("level "));
       lcd.print(level);
-      lcd.print("!");
+      lcd.print(F("!"));
     }
     started = true;
   }
 
-  if (buttonPressed == 1) {
-    const String whiteSpace = "       ";
+  if (screen == 1) {
     lcd.setCursor(0 ,0);
     byte byteType = 0;
     bool boolType = true;
     int intType = 0;
     if (EEPROM.get(statsHighScoreAddress, boolType)) {
-      lcd.print("Highscore: ");
+      lcd.print(F("Highscore: "));
     }
     else {
-      lcd.print("Score: ");
+      lcd.print(F("Score: "));
     }
     lcd.print(EEPROM.get(statsScoreAddress, intType));
-    lcd.print("!");
-    lcd.print(whiteSpace);
+    lcd.print(F("!"));
+    lcd.print(F("       "));
     lcd.setCursor(0, 1);
-    lcd.write(byte(0));
+    lcd.write(byte(timeChar));
     lcd.print(EEPROM.get(statsTimeAddress, intType));
-    lcd.print(" ");
-    lcd.write(byte(2));
-    lcd.print("x");
+    lcd.print(F(" "));
+    lcd.write(byte(bombChar));
+    lcd.print(F("x"));
     lcd.print(EEPROM.get(statsBombsAddress, intType));
-    lcd.print(" ");
-    lcd.write(byte(1));
-    lcd.print("x");
+    lcd.print(F(" "));
+    lcd.write(byte(heartChar));
+    lcd.print(F("x"));
     lcd.print(EEPROM.get(statsDamageTakenAddress, byteType));
-    lcd.print(" ");
+    lcd.print(F(" "));
     if (EEPROM.get(statsSpreadAddress, boolType)) {
-      lcd.write(byte(3));
+      lcd.write(byte(bonusSpreadChar));
     }
-    lcd.print(whiteSpace);
+    lcd.print(F("       "));
   }
 
-  if (buttonPressed == 2) {
+  if (screen == numberOfScreens) {
     started = false;
     level = 1;
     EEPROM.put(statsHighScoreAddress, false);

@@ -11,6 +11,7 @@ void Credits::update(int index) {
 }
 
 void Credits::updateList(byte index) {
+  // Using the counter variable, the text has half the speed and is more readable
   if (index == 2 && counter % 2 == 0) {
     String link = listOfOptions[index];
     char firstChar = link[0];

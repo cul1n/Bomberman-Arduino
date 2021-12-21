@@ -6,7 +6,7 @@ class List {
 public:
     byte length;
     
-    T data[5];
+    T data[longListLength];
 
     List();
 
@@ -22,7 +22,7 @@ class ShortList {
 public:
     byte length;
     
-    T data[3];
+    T data[shortListLength];
 
     ShortList();
 

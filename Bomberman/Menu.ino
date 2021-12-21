@@ -7,7 +7,7 @@ void Menu::render(int index, int lastIndex) {
   if (index % 2 == 0 && lastIndex == index - 1) {
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print(">");
+    lcd.print(F(">"));
     lcd.print(listOfOptions[index]);
     if (index + 1 < numberOfOptions) {
       lcd.setCursor(1,1);
@@ -16,15 +16,15 @@ void Menu::render(int index, int lastIndex) {
   }
   else if (index % 2 == 1 && lastIndex == index - 1) {
     lcd.setCursor(0,0);
-    lcd.print(" ");
+    lcd.print(F(" "));
     lcd.setCursor(0,1);
-    lcd.print(">");
+    lcd.print(F(">"));
   }
   else if (index % 2 == 0 && lastIndex == index + 1) {
       lcd.setCursor(0,0);
-      lcd.print(">");
+      lcd.print(F(">"));
       lcd.setCursor(0,1);
-      lcd.print(" ");
+      lcd.print(F(" "));
   }
   else if (index % 2 == 1 && lastIndex == index + 1) {
       if (index - 1 >= 0) {
@@ -33,7 +33,7 @@ void Menu::render(int index, int lastIndex) {
         lcd.print(listOfOptions[index - 1]);
       }
       lcd.setCursor(0,1);
-      lcd.print(">");
+      lcd.print(F(">"));
       lcd.print(listOfOptions[index]);
   }
 }

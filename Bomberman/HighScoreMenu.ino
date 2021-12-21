@@ -11,15 +11,24 @@ void HighScoreMenu::update(int index) {
 }
 
 void HighScoreMenu::updateList(byte dummy) {
-  for (byte i = 0; i < 3; i++) {
+  for (byte i = 0; i < numberOfHighScores; i++) {
     String score = String(i + 1) + ".";
+    
     if (EEPROM.read(highScoreAddress + i * (maxNameLength + sizeof(int))) != 0) {
       int scoreValue = 0;
+      
       for (byte j = 0; j < maxNameLength; j++) {
-        char c = EEPROM.read(highScoreAddress + i * (maxNameLength + sizeof(int)) + j);
-        if (c != 0) score += c;
-        else score += " ";
+        char character = EEPROM.read(highScoreAddress + i * (maxNameLength + sizeof(int)) + j);
+        
+        if (character != 0) {
+          score += character;
+        }
+        
+        else {
+          score += " ";
+        }
       }
+      
       score += " ";
       score += String(EEPROM.get(highScoreAddress + (i + 1) * maxNameLength + i * sizeof(int), scoreValue));
     }

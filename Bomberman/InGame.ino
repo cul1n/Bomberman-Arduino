@@ -3,7 +3,6 @@
 extern LiquidCrystal lcd;
 
 InGame::InGame() : p(3, 0) {
-  matrix[1][1] = playerId;
   level = 1;
   levelStarted = true;
   gameStarted = true;
@@ -16,7 +15,7 @@ InGame::InGame() : p(3, 0) {
   enemyBlinker = 0;
   playerBlinker = 0;
   
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < numberOfItems; i++) {
     items[i] = true;
   }
   
@@ -30,17 +29,17 @@ void InGame::render(int index, int lastIndex) {
   lcd.setCursor(0, 0);
   lcd.print(playerName);
   lcd.setCursor(12, 0);
-  lcd.write(byte(0));
+  lcd.write(byte(timeChar));
   lcd.setCursor(0, 1);
-  lcd.write(byte(1));
-  lcd.print("x");
+  lcd.write(byte(heartChar));
+  lcd.print(F("x"));
   lcd.print(p.getPlayerHealth());
   lcd.setCursor(4,1);
-  lcd.write(byte(2));
-  lcd.print("x");
+  lcd.write(byte(bombChar));
+  lcd.print(F("x"));
   lcd.print(p.getNumberOfBombs());
   lcd.setCursor(8,1);
-  lcd.print("SCR: ");
+  lcd.print(F("SCR: "));
 }
 
 bool InGame::isPlaying() {
@@ -48,18 +47,20 @@ bool InGame::isPlaying() {
 }
 
 void InGame::generateRoom() {
-  for (byte i = 0; i < 8; i++) {
-    for (byte j = 0 ; j < 8; j++) {
+  for (byte i = 0; i < matrixSize; i++) {
+    for (byte j = 0 ; j < matrixSize; j++) {
       matrix[i][j] = 0;
-      if (i == 0 || j == 0 || i == 7 || j ==7) {
+      if (i == 0 || j == 0 || i == matrixSize - 1 || j == matrixSize - 1) {
         matrix[i][j] = solidWallId;
       }
     }
   }
 
+  // Starting gate position
   matrix[3][0] = 0;
   matrix[4][0] = 0;
 
+  // Player starting position
   p.setPos(3, 0);
   matrix[3][0] = playerId;
   
@@ -78,26 +79,35 @@ void InGame::generateRoom() {
     matrix[7][4] = gateId;
   }
 
-  byte numberOfBlocks = ((level + 1) / 2) * 5;
+  // Formula to calculate the number of walls within one room
+  byte numberOfWalls = ((level + 1) / 2) * 5;
 
-  while (numberOfBlocks) {
-    byte i = random(1, 7);
-    byte j = random(1, 7);
+  // After level 7, as there is not much space left, the number of walls plateaus
+  if ( level > 7) {
+    numberOfWalls = 13 + level;
+  }
+
+  while (numberOfWalls) {
+    byte i = random(1, matrixSize - 1);
+    byte j = random(1, matrixSize - 1);
+    // Checking the position in front of the gate
     if (i != 3 || j != 1) {
       if (matrix[i][j] != breakableWallId) {
         matrix[i][j] = breakableWallId;
-        numberOfBlocks--;
+        numberOfWalls--;
       }
     }
   }
 
+  // Formula to calculate the number of enemies
   byte numberOfEnemies = (level + 1) / 3;
 
   while (numberOfEnemies) {
-    byte i = random(2,6);
-    byte j = random(2,6);
+    byte i = random(enemySpawnRange, matrixSize - enemySpawnRange);
+    byte j = random(enemySpawnRange, matrixSize - enemySpawnRange);
     if (matrix[i][j] != enemyId) {
-      byte dir = random(0,4);
+      // obtain 1 out of 4 random directions for the enemy
+      byte dir = random(0, numberOfDirections);
       matrix[i][j] = enemyId;
       Enemy enemy(i, j, dir);
       enemies.append(enemy);
@@ -108,14 +118,15 @@ void InGame::generateRoom() {
 }
 
 int lastTimer = 0;
+
 void InGame::updateTimer() {
-  int timer = maxTime - (millis() - startTime) / 1000;
+  int timer = maxTime - (millis() - startTime) / millisInSecond;
   if (timer == -1) {
     gameOver();
   }
   if (lastTimer != timer) {
     lcd.setCursor(13, 0);
-    lcd.print("   ");
+    lcd.print(F("   "));
     lcd.setCursor(13, 0);
     lcd.print(timer);
   }
@@ -137,23 +148,27 @@ void InGame::updateBombs() {
 }
 
 void InGame::updateScore() {
-  lcd.setCursor(13, 1);
-  lcd.print("   ");
-  lcd.setCursor(13, 1);
+  lcd.setCursor(12, 1);
+  lcd.print(F("    "));
+  if (score > scoreThreshold) {
+    lcd.setCursor(12, 1);
+  }
+  else {
+    lcd.setCursor(13, 1);
+  }
   lcd.print(score);
 }
 
 void InGame::updateLevel() {
   lcd.setCursor(7, 0);
-  lcd.print("LV");
-  if ( level != 10) {
-    lcd.print(0);
+  lcd.print(F("LV"));
+  if ( level != maxLevel) {
+    lcd.print(F("0"));
   }
   lcd.print(level);
 }
 
 void InGame::updateHighScore(int currentScore) {
-  int intType = 0;
   if (currentScore > EEPROM.get(highScoreAddress + maxNameLength, intType)) {
     for (byte i = highScoreAddress; i < highScoreAddress + maxNameLength; i++) {
       EEPROM.put(i + 2 * (maxNameLength + sizeof(int)), EEPROM.read(i + maxNameLength + sizeof(int)));
@@ -190,12 +205,17 @@ void InGame::updateHighScore(int currentScore) {
 }
 
 void InGame::clearRoom() {
-  while (enemies.length)
+  while (enemies.length) {
     enemies.remove(0);
-  while (bombs.length)
+  }
+  
+  while (bombs.length) {
     bombs.remove(0);
-  while (explosions.length)
+  }
+  
+  while (explosions.length) {
     explosions.remove(0);
+  }
 }
 
 void InGame::gameOver() {
@@ -204,7 +224,7 @@ void InGame::gameOver() {
   levelStarted = true;
   nextRoom = true;
   updateHighScore(score);
-  timePlayed += (millis() - startTime) / 1000;
+  timePlayed += (millis() - startTime) / millisInSecond;
   EEPROM.put(statsLevelAddress, level);
   EEPROM.put(statsScoreAddress, score);
   EEPROM.put(statsTimeAddress, timePlayed);
@@ -216,20 +236,18 @@ void InGame::gameOver() {
 void InGame::playerController(int xChange, int yChange, bool swChange) {
   if (gameStarted) {
     strcpy(playerName, "      ");
-    for (int i = nameAddress; i < nameAddress + 6; i++) {
-      char c = EEPROM.read(i);
-      Serial.println(c);
-      if (c != '\0') {
-        playerName[i - nameAddress] = c;
-        Serial.println(playerName);
+    for (int i = nameAddress; i < nameAddress + maxNameLength; i++) {
+      char character = EEPROM.read(i);
+      if (character != '\0') {
+        playerName[i - nameAddress] = character;
       }
     }
-    playerName[6] = '\0';
+    playerName[maxNameLength] = '\0';
+    
     if (!strlen(playerName))
       strcpy(playerName, "A");
     score = 0;
-
-    int intType = 0;
+    
     level = EEPROM.get(levelAddress, intType);
     timePlayed = 0;
     bombsPlaced = 0;
@@ -238,84 +256,86 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     if (level == 0)
       level = 1;
     gameStarted = false;
-    p.setStats(3, 1, 1);
+
+    p.setStats(defaultHealth, deafultNumberOfBombs, defaultExplosionSpread);
   }
 
   if (shop) {
     if (!shopDisplayed) {
       bool removed = false;
 
-      if (p.getExplosionSpread() == 2)  {
-        items[2] = false;
+      if (p.getExplosionSpread() == maxExplosionSpread)  {
+        items[spreadShopIndex] = false;
         removed = true;
       }
 
-      if (p.getNumberOfBombs() == 3) {
-        items[1] = false;
+      if (p.getNumberOfBombs() == maxNumberOfBombs) {
+        items[bombShopIndex] = false;
         removed = true;
       }
 
       if (!removed) {
-        byte removedItem  = random(0,6);
+        byte removedItem  = random(0, shopChance);
         
-        if (removedItem == 0) {
-          items[0] = false;
+        if (removedItem == healthShopIndex) {
+          items[healthShopIndex] = false;
         }
-        else if (removedItem == 1) {
-          items[1] = false;
+        else if (removedItem == bombShopIndex) {
+          items[bombShopIndex] = false;
         }
         else {
-          items[2] = false;
+          items[spreadShopIndex] = false;
         }
       }
       
       lc.clearDisplay(0);
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print("SHOP: SCORE: ");
+      lcd.print(F("SHOP: SCORE: "));
       lcd.print(score);
       lcd.setCursor(0, 1);
-      lcd.print(">");
+      lcd.print(F(">"));
 
-      for (int i = 0; i < 3; i++) {
+      for (int i = 0; i < numberOfItems; i++) {
         if (items[i] == true) {
-          byte itemValue = (level / 2 + i) * 25;
+          // Formula to calculate price of item
+          byte itemValue = (level / 2 + i) * basePrice;
           lcd.write(byte(i + 1));
-          lcd.print(":");
+          lcd.print(F(":"));
           lcd.print(itemValue);
           if (itemValue < 100) {
-            lcd.print("  ");
+            lcd.print(F("  "));
           }
           else {
-            lcd.print(" ");
+            lcd.print(F(" "));
           }
         }
       }
 
       lcd.setCursor(13, 1);
-      lcd.print("NO");
+      lcd.print(F("NO"));
       shopDisplayed = true;
       shopIndex = 0;
     }
     if (yChange == -1) {
       if (shopIndex != 0) {
-        tone(buzzerPin, 2000, 100);
+        playSound(menuChangeFrequency, menuChangeDuration);
         lcd.setCursor(shopIndex * 6, 1);
-        lcd.print(" ");
+        lcd.print(F(" "));
         shopIndex--;
         lcd.setCursor(shopIndex * 6, 1);
-        lcd.print(">");
+        lcd.print(F(">"));
       }
     }
   
     else if (yChange == 1) {
       if (shopIndex != 2) {
-        tone(buzzerPin, 2000, 100);
+        playSound(menuChangeFrequency, menuChangeDuration);
         lcd.setCursor(shopIndex * 6, 1);
-        lcd.print(" ");
+        lcd.print(F(" "));
         shopIndex++;
         lcd.setCursor(shopIndex * 6, 1);
-        lcd.print(">");
+        lcd.print(F(">"));
       }
     }
 
@@ -334,27 +354,27 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
           if (score > itemValue) {
             score -= itemValue;
             
-            if (i == 0) {
+            if (i == healthShopIndex) {
               p.setStats(p.getPlayerHealth() + 1, p.getNumberOfBombs(), p.getExplosionSpread());
             }
             
-            else if (i == 1) {
+            else if (i == bombShopIndex) {
               p.setStats(p.getPlayerHealth(), p.getNumberOfBombs() + 1, p.getExplosionSpread());
             }
             
-            else if (i == 2) {
+            else if (i == spreadShopIndex) {
               p.setStats(p.getPlayerHealth(), p.getNumberOfBombs(), p.getExplosionSpread() + 1);
               upgrade = true;
             }
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < numberOfItems; i++) {
               items[i] = true;
             }
-            tone(buzzerPin, 1000, 150);            
+            playSound(menuChoiceFrequency, menuChoiceDuration);  
             shop = false;             
           }
           else {
-            tone(buzzerPin, 500, 150);
+            playSound(noMoneyFrequency, noMoneyDuration);
           }
           break;
         }
@@ -366,7 +386,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
             i--;
           }
 
-          byte itemValue = (level / 2 + i) * 25;
+          byte itemValue = (level / 2 + i) * basePrice;
 
           if (score > itemValue && i != 0) {
             score -= itemValue;
@@ -379,14 +399,14 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
               upgrade = true;
             }
             
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < numberOfItems; i++) {
               items[i] = true;
             }
-            tone(buzzerPin, 1000, 150);
+            playSound(menuChoiceFrequency, menuChoiceDuration);
             shop = false;
           }
           else {
-            tone(buzzerPin, 500, 150);
+            playSound(noMoneyFrequency, noMoneyDuration);
           }
           
           break;
@@ -395,10 +415,10 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
         case 2: {
           shop = false;
           
-          for (int i = 0; i < 3; i++) {
+          for (int i = 0; i < numberOfItems; i++) {
             items[i] = true;
           }
-          tone(buzzerPin, 1000, 150);
+          playSound(menuChoiceFrequency, menuChoiceDuration);
           break;
         }
         
@@ -414,7 +434,12 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
   else {
     if (levelStarted) {
       startTime = millis();
-      maxTime = 25 * level;
+      if (level < lastLevelIncrease) {
+        maxTime = baseTime * level;
+      }
+      else {
+        maxTime = baseTime * lastLevelIncrease;
+      }
       render(0, 0);
       updateLevel();
       updateScore();
@@ -439,53 +464,65 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       p.loseHealth();
       updateHealth();
     }
+
+    if (matrix[xLastPos][yLastPos] == 0) {
+      matrix[xLastPos][yLastPos] = playerId;
+    }
     
-    if (swChange && bombs.length < p.getNumberOfBombs()) {
-      tone(buzzerPin, 1000, 100);
+    if (swChange && bombs.length < p.getNumberOfBombs() && matrix[p.getPos().getPosX()][p.getPos().getPosY()] != bombId) {
+      playSound(bombPlacedFrequency, bombPlacedDuration);
       Bomb bomb(p.getPos().getPosX(), p.getPos().getPosY());
       bombSpawned = true;
-      matrix[bomb.getPos().getPosX()][bomb.getPos().getPosY()] = 1;
+      matrix[bomb.getPos().getPosX()][bomb.getPos().getPosY()] = bombId;
       bombs.append(bomb);
       updateBombs();
       bombsPlaced++;
     }
   
-    if (xChange == -1) {
+    if (xChange == negative) {
       if (p.getPos().getPosX() > 0) {
         if (matrix[xLastPos - 1][yLastPos] != breakableWallId && matrix[xLastPos - 1][yLastPos] != solidWallId)
-          p.modifyPos(-1, 0);
+          p.modifyPos(negative, 0);
       }
     }
   
-    else if (xChange == 1) {
-      if (p.getPos().getPosX() < 7) {
+    else if (xChange == positive) {
+      if (p.getPos().getPosX() < matrixSize - 1) {
         if (matrix[xLastPos + 1][yLastPos] != breakableWallId && matrix[xLastPos + 1][yLastPos] != solidWallId)
-          p.modifyPos(1, 0);
+          p.modifyPos(positive, 0);
       }
     }
   
-    else if (yChange == -1) {
+    else if (yChange == negative) {
       if (p.getPos().getPosY() > 0) {
         if (matrix[xLastPos][yLastPos - 1] != breakableWallId && matrix[xLastPos][yLastPos - 1] != solidWallId)
-          p.modifyPos(0, -1);
+          p.modifyPos(0, negative);
       }
     }
   
-    else if (yChange == 1) {
-      if (p.getPos().getPosY() < 7) {
+    else if (yChange == positive) {
+      if (p.getPos().getPosY() < matrixSize - 1) {
         if (matrix[xLastPos][yLastPos + 1] != breakableWallId && matrix[xLastPos][yLastPos + 1] != solidWallId)
-          p.modifyPos(0, 1);
+          p.modifyPos(0, positive);
       }
     }
   
     if (xLastPos != p.getPos().getPosX() || yLastPos != p.getPos().getPosY()) {
       if (matrix[p.getPos().getPosX()][p.getPos().getPosY()] == gateId) {
-        if (currentRoom == 1) { //ATENTIE = LEVEL
-          tone(buzzerPin, 2500, 100);
-          timePlayed += (millis() - startTime) / 1000;
-          score += (maxTime - (millis() - startTime) / 1000);
+        if (currentRoom == level || currentRoom  >= lastLevelIncrease) {
+          playSound(nextLevelFrequency, nextLevelDuration);
+          timePlayed += (millis() - startTime) / millisInSecond;
+          // Adding only one third of the time left to the score to incentivise breaking walls and defeating enemies
+          score += (maxTime - (millis() - startTime) / millisInSecond) / 3;
           level++;
+          
+          if (level == maxLevel + 1) {
+            gameOver();
+          }
+          
           levelStarted = true; 
+          
+          // Every two levels the player gets a shop
           if (level % 2 == 1) {
             shop = true;
             shopDisplayed = false;
@@ -509,7 +546,7 @@ void InGame::matrixUpdate() {
 
       matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 0;
       bombs.remove(i);
-      tone(buzzerPin, 100, 400);
+      playSound(bombExplosionFrequency, bombExplosionDuration);
       updateBombs();
       i--;
     }
@@ -518,7 +555,7 @@ void InGame::matrixUpdate() {
     }
   }
 
-  if (enemyBlinker == 18) {
+  if (enemyBlinker == enemyMoveTimer) {
     for (int i = 0; i  < enemies.length; i++) {
       byte x = enemies.getItem(i).getPos().getPosX();
       byte y = enemies.getItem(i).getPos().getPosY();
@@ -527,35 +564,35 @@ void InGame::matrixUpdate() {
       matrix[x][y] = 0;
       switch (dir) {
         case 0:
-          if (x + 1 < 7 && (matrix[x + 1][y] == 0 || matrix[x + 1][y] == playerId || matrix[x + 1][y] == explosionId)) {
-            enemies.getItem(i).modifyPos(1, 0);
+          if (x + 1 < matrixSize - 1 && (matrix[x + 1][y] == 0 || matrix[x + 1][y] == playerId || matrix[x + 1][y] == explosionId)) {
+            enemies.getItem(i).modifyPos(positive, 0);
           }
           else {
-            newDir = random(0, 4);
+            newDir = random(0, numberOfDirections);
           }
           break;
         case 1:
           if (x - 1 > 0 && (matrix[x - 1][y] == 0 || matrix[x - 1][y] == playerId || matrix[x - 1][y] == explosionId)) {
-            enemies.getItem(i).modifyPos(-1, 0);
+            enemies.getItem(i).modifyPos(negative, 0);
           }
           else {
-            newDir = random(0, 4);
+            newDir = random(0, numberOfDirections);
           }
           break;
         case 2:
-          if (y + 1 < 7 && (matrix[x][y + 1] == 0 || matrix[x][y + 1] == playerId || matrix[x][y + 1] == explosionId)) {
-            enemies.getItem(i).modifyPos(0, 1);
+          if (y + 1 < matrixSize - 1 && (matrix[x][y + 1] == 0 || matrix[x][y + 1] == playerId || matrix[x][y + 1] == explosionId)) {
+            enemies.getItem(i).modifyPos(0, positive);
           }
           else {
-            newDir = random(0, 4);
+            newDir = random(0, numberOfDirections);
           }
           break;
         case 3:
           if (y - 1 > 0 && (matrix[x][y - 1] == 0 || matrix[x][y - 1] == playerId || matrix[x][y - 1] == explosionId)) {
-            enemies.getItem(i).modifyPos(0, -1);
+            enemies.getItem(i).modifyPos(0, negative);
           }
           else {
-            newDir = random(0, 4);
+            newDir = random(0, numberOfDirections);
           }
           break;
         default:
@@ -573,7 +610,7 @@ void InGame::matrixUpdate() {
   for (int i = 0; i  < enemies.length; i++) {
     if (matrix[enemies.getItem(i).getPos().getPosX()][enemies.getItem(i).getPos().getPosY()] == explosionId) {
         enemies.remove(i);
-        score += 20;
+        score += enemyScore;
         updateScore();
         i--;
     }
@@ -592,7 +629,7 @@ void InGame::matrixUpdate() {
       switch (dir) {
         case 0: {
             if (matrix[x - 1][y] == breakableWallId) {
-              score += 5;
+              score += wallScore;
               updateScore();
               matrix[x - 1][y] = 0;
             }
@@ -602,7 +639,7 @@ void InGame::matrixUpdate() {
             }
 
             if (matrix[x + 1][y] == breakableWallId) {
-              score += 5;
+              score += wallScore;
               updateScore();
               matrix[x + 1][y] = 0;
             }
@@ -612,7 +649,7 @@ void InGame::matrixUpdate() {
             }
 
             if (matrix[x][y - 1] == breakableWallId) {
-              score += 5;
+              score += wallScore;
               updateScore();
               matrix[x][y - 1] = 0;
             }
@@ -622,7 +659,7 @@ void InGame::matrixUpdate() {
             }
 
             if (matrix[x][y + 1] == breakableWallId) {
-              score += 5;
+              score += wallScore;
               updateScore();
               matrix[x][y + 1] = 0;
             }
@@ -635,7 +672,7 @@ void InGame::matrixUpdate() {
           }
         case 1: {
             if (matrix[x - 1][y] == breakableWallId) {
-              score += 5;
+              score += wallScore;
               updateScore();
               matrix[x - 1][y] = 0;
             }
@@ -647,7 +684,7 @@ void InGame::matrixUpdate() {
           }
         case 2: {
             if (matrix[x + 1][y] == breakableWallId) {
-              score += 5;
+              score += wallScore;
               updateScore();
               matrix[x + 1][y] = 0;
             }
@@ -659,7 +696,7 @@ void InGame::matrixUpdate() {
           }
         case 3: {
             if (matrix[x][y - 1] == breakableWallId) {
-              score += 5;
+              score += wallScore;
               updateScore();
               matrix[x][y - 1] = 0;
             }
@@ -671,7 +708,7 @@ void InGame::matrixUpdate() {
           }
         case 4: {
             if (matrix[x][y + 1] == breakableWallId) {
-              score += 5;
+              score += wallScore;
               updateScore();
               matrix[x][y + 1] = 0;
             }
@@ -686,7 +723,7 @@ void InGame::matrixUpdate() {
           }
       }
     }
-    matrix[explosions.getItem(i).getPos().getPosX()][explosions.getItem(i).getPos().getPosY()] = 1;
+    matrix[explosions.getItem(i).getPos().getPosX()][explosions.getItem(i).getPos().getPosY()] = explosionId; // ???
   }
 
   for (int i = 0; i < explosions.length; i++) {
@@ -700,49 +737,54 @@ void InGame::matrixUpdate() {
     }
   }
 
-  for (int row = 0; row < 8; row++) {
-    for (int col = 0; col < 8; col++) {
+  for (int row = 0; row < matrixSize; row++) {
+    for (int col = 0; col < matrixSize; col++) {
       if (matrix[row][col] != gateId && matrix[row][col] != bombId && matrix[row][col] != enemyId)
         lc.setLed(0, row, col, matrix[row][col]);
       else
         lc.setLed(0, row, col, 0);
 
       if (matrix[row][col] == bombId) {
-        if (bombBlinker > 3) {
+        if (bombBlinker > bombBlinkerDelay) {
           lc.setLed(0, row, col, matrix[row][col]);
         }
-        else
-          lc.setLed(0, row, col, 0); 
+        else {
+          lc.setLed(0, row, col, 0);
+        }
       }
 
       if (matrix[row][col] == enemyId) {
-        if (enemyBlinker % 3 == 0)
+        if (enemyBlinker % 3 == 0) {
           lc.setLed(0, row, col, matrix[row][col]);
-        else
+        }
+        else {
           lc.setLed(0, row, col, 0);
+        }
       }
 
       if (matrix[row][col] == playerId) {
-        if (playerBlinker > 5)
+        if (playerBlinker > playerBlinkerDelay) {
           lc.setLed(0, row, col, matrix[row][col]);
-        else
+        }
+        else {
           lc.setLed(0, row, col, 0);
+        }
       }
     }
   }
 
   bombBlinker++;
-  if (bombBlinker == 10) {
+  if (bombBlinker == bombBlinkerMaxTime) {
     bombBlinker = 0;
   }
   
   enemyBlinker++;
-  if (enemyBlinker == 19) {
+  if (enemyBlinker == enemyMoveTimer + 1) {
     enemyBlinker = 0;
   }
   
   playerBlinker++;
-  if (playerBlinker == 25) {
+  if (playerBlinker == playerBlinkerMaxTime) {
     playerBlinker = 0;
   }
 }
