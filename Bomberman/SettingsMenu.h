@@ -9,6 +9,7 @@ class SettingsMenu : public Menu {
   bool editingLCDBrightness = false;
   bool editingMatrixBrightness = false;
   bool resettingScores = false;
+  bool disablingSound = false;
   bool choice = false;
   String playerName = "";
   int level = 0;
@@ -47,6 +48,10 @@ class SettingsMenu : public Menu {
     bool isResettingScores() override;
 
     void resetScores(int, int, bool);
+
+    bool isDisablingSound() override;
+
+    void disableSound(int, int, bool);
 
     void displayIcon(uint64_t);
 };

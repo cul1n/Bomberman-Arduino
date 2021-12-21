@@ -65,3 +65,10 @@ void Controls::updateMenu() {
 
   lastSwState = swState;
 }
+
+void Controls::playSound(int frequency, int duration) {
+  bool boolType = false;
+  if (!EEPROM.get(soundsDisabledAddress, boolType)) {
+    tone(buzzerPin, frequency, duration);
+  }
+}

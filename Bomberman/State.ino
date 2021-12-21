@@ -9,7 +9,7 @@
 
 String listMainMenu[4] = {"Play", "Settings", "High Score", "Credits"};
 String listHighScore[5] = {"High Scores:", noPlayer, noPlayer, noPlayer, "Back"};
-String listSettingsMenu[7] = {"Name", "Level", "Contrast", "LCD Brightness", "Mtrx Brghtnss", "Reset HiScore", "Back"};
+String listSettingsMenu[8] = {"Name", "Level", "Contrast", "LCD Brightness", "Mtrx Brghtnss", "Reset HiScore", "Sound", "Back"};
 String listCredits[4] = {"Bomberman", "Calin Hirhui", "github.com/cul1n/Bomberman-Arduino  ", "Back"};
 String listIntro[2] = {"Bomberman", "Loading.."};
 
@@ -17,7 +17,7 @@ Intro intro(2, listIntro);
 MainMenu mainMenu(4, listMainMenu);
 HighScoreMenu highScoreMenu(5, listHighScore);
 Credits credits(4, listCredits);
-SettingsMenu settingsMenu(7, listSettingsMenu);
+SettingsMenu settingsMenu(8, listSettingsMenu);
 InGame inGame;
 GameOver gameOver;
 

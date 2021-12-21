@@ -319,7 +319,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     }
     if (yChange == -1) {
       if (shopIndex != 0) {
-        playSound(menuChangeFrequency, menuChangeDuration);
+        controls.playSound(menuChangeFrequency, menuChangeDuration);
         lcd.setCursor(shopIndex * 6, 1);
         lcd.print(F(" "));
         shopIndex--;
@@ -330,7 +330,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
   
     else if (yChange == 1) {
       if (shopIndex != 2) {
-        playSound(menuChangeFrequency, menuChangeDuration);
+        controls.playSound(menuChangeFrequency, menuChangeDuration);
         lcd.setCursor(shopIndex * 6, 1);
         lcd.print(F(" "));
         shopIndex++;
@@ -370,11 +370,11 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
             for (int i = 0; i < numberOfItems; i++) {
               items[i] = true;
             }
-            playSound(menuChoiceFrequency, menuChoiceDuration);  
+            controls.playSound(menuChoiceFrequency, menuChoiceDuration);  
             shop = false;             
           }
           else {
-            playSound(noMoneyFrequency, noMoneyDuration);
+            controls.playSound(noMoneyFrequency, noMoneyDuration);
           }
           break;
         }
@@ -402,11 +402,11 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
             for (int i = 0; i < numberOfItems; i++) {
               items[i] = true;
             }
-            playSound(menuChoiceFrequency, menuChoiceDuration);
+            controls.playSound(menuChoiceFrequency, menuChoiceDuration);
             shop = false;
           }
           else {
-            playSound(noMoneyFrequency, noMoneyDuration);
+            controls.playSound(noMoneyFrequency, noMoneyDuration);
           }
           
           break;
@@ -418,7 +418,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
           for (int i = 0; i < numberOfItems; i++) {
             items[i] = true;
           }
-          playSound(menuChoiceFrequency, menuChoiceDuration);
+          controls.playSound(menuChoiceFrequency, menuChoiceDuration);
           break;
         }
         
@@ -470,7 +470,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     }
     
     if (swChange && bombs.length < p.getNumberOfBombs() && matrix[p.getPos().getPosX()][p.getPos().getPosY()] != bombId) {
-      playSound(bombPlacedFrequency, bombPlacedDuration);
+      controls.playSound(bombPlacedFrequency, bombPlacedDuration);
       Bomb bomb(p.getPos().getPosX(), p.getPos().getPosY());
       bombSpawned = true;
       matrix[bomb.getPos().getPosX()][bomb.getPos().getPosY()] = bombId;
@@ -510,7 +510,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     if (xLastPos != p.getPos().getPosX() || yLastPos != p.getPos().getPosY()) {
       if (matrix[p.getPos().getPosX()][p.getPos().getPosY()] == gateId) {
         if (currentRoom == level || currentRoom  >= lastLevelIncrease) {
-          playSound(nextLevelFrequency, nextLevelDuration);
+          controls.playSound(nextLevelFrequency, nextLevelDuration);
           timePlayed += (millis() - startTime) / millisInSecond;
           // Adding only one third of the time left to the score to incentivise breaking walls and defeating enemies
           score += (maxTime - (millis() - startTime) / millisInSecond) / 3;
@@ -546,7 +546,7 @@ void InGame::matrixUpdate() {
 
       matrix[bombs.getItem(i).getPos().getPosX()][bombs.getItem(i).getPos().getPosY()] = 0;
       bombs.remove(i);
-      playSound(bombExplosionFrequency, bombExplosionDuration);
+      controls.playSound(bombExplosionFrequency, bombExplosionDuration);
       updateBombs();
       i--;
     }

@@ -25,6 +25,9 @@ void SettingsMenu::update(int index) {
       resettingScores = true;
       break;
     case 6:
+      disablingSound = true;
+      break;
+    case 7:
       setGameState(GameState::MainMenu);
       break;
     default:
@@ -437,6 +440,44 @@ void SettingsMenu::resetScores(int exponent, int increment, bool finished) {
     }
     started = false;
     resettingScores = false;
+  }
+}
+
+bool SettingsMenu::isDisablingSound() {
+  return disablingSound;
+}
+
+void SettingsMenu::disableSound(int exponent, int increment, bool finished) {
+  if (!started) {
+    started = true;
+    choice = false;
+    lcd.clear();
+    lcd.setCursor(1, 0);
+    lcd.print(F("Disable Sound?"));
+    lcd.setCursor(0, 1);
+    lcd.print(F(">NO  YES"));
+  }
+
+  if (increment == 1 && !choice) {
+    choice = true;
+    lcd.setCursor(0, 1);
+    lcd.print(F(" "));
+    lcd.setCursor(4, 1);
+    lcd.print(F(">"));
+  }
+
+  if (increment == -1 && choice) {
+    choice = false;
+    lcd.setCursor(0, 1);
+    lcd.print(F(">"));
+    lcd.setCursor(4, 1);
+    lcd.print(F(" "));
+  }
+
+  if (finished) {
+    EEPROM.put(soundsDisabledAddress, choice);
+    started = false;
+    disablingSound = false;
   }
 }
 

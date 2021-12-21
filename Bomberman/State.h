@@ -22,7 +22,9 @@ class State {
   virtual bool isGameOver() {return false;}
   virtual void updateList(byte) {}
   virtual bool isResettingScores() {return false;}
-  virtual void resetScores(int, int, bool) {};
+  virtual void resetScores(int, int, bool) {}
+  virtual bool isDisablingSound() {return false;}
+  virtual void disableSound(int, int, bool) {}
 };
 
 

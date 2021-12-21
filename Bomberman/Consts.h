@@ -34,6 +34,7 @@ const byte statsTimeAddress = statsScoreAddress + sizeof(int);
 const byte statsBombsAddress = statsTimeAddress + sizeof(int);
 const byte statsDamageTakenAddress = statsBombsAddress + sizeof(int);
 const byte statsSpreadAddress = statsDamageTakenAddress + sizeof(byte);
+const byte soundsDisabledAddress = statsSpreadAddress + sizeof(bool);
 
 // Used types for EEPROM.get()
 const int intType = 0;
@@ -167,7 +168,7 @@ const byte bombBlinkerMaxTime = 10;
 const int enemyScore = 20;
 const int wallScore = 5;
 
-const byte longListLength = 23;
+const byte longListLength = 18;
 const byte shortListLength = 3;
 
 // ID's used for in-game map

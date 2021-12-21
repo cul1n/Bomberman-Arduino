@@ -43,7 +43,7 @@ void Player::loseHealth() {
     byte damageTaken = EEPROM.read(statsDamageTakenAddress);
     damageTaken++;
     EEPROM.put(statsDamageTakenAddress, damageTaken);
-    playSound(damageTakenFrequency, damageTakenDuration);
+    controls.playSound(damageTakenFrequency, damageTakenDuration);
     health--;
     invincibilityTime = millis();
   }

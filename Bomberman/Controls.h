@@ -5,4 +5,6 @@ class Controls {
     void updateMenu();
 
     void editOption();
+
+    void playSound(int, int);
 };

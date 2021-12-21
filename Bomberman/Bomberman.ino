@@ -167,6 +167,15 @@ void loop() {
     
     getGameState().resetScores(pos, letter, finished);
   }
+
+  else if (getGameState().isDisablingSound()) {
+    if (millis() - lastMoved > moveInterval) {
+      controls.editOption();
+      lastMoved = millis();
+    }
+    
+    getGameState().disableSound(pos, letter, finished);
+  }
   
   else {
     if (millis() - lastMoved > moveInterval) {
@@ -193,8 +202,4 @@ void loop() {
   pos = 0;
   letter = 0;
   finished = false;
-}
-
-void playSound(int frequency, int duration) {
-  tone(buzzerPin, frequency, duration);
 }
