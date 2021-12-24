@@ -45,10 +45,31 @@ The score is calculated by adding 5 points per wall destroyed, 20 points per ene
 The game ends if the player has no lives left, the timer reaches 0 or the player finishes level 10. The game over screen displays the level reached, and after a button press, another screen with stats about the game will be revealed: player's score (it announces if the player entered the high score leaderboard), total time played, number of bombs placed and damage taken. Another button press will take the player back to the main menu.
 
 ### Project files
-TBA
+- Bomberman (.ino) - Main file where the game state is checked.
+- Consts (.h) - File containing constant variables used in the project.
+- Controls (.ino / .h) - Class used for utility functions, like controlling the joystick.
+- State (.ino / .h) - The generic game state class.
+  - Intro (.ino / .h) - Renders the intro message.
+  - Menu (.ino / .h) - The generic menu class, used for defining the logic of the scrolling menu.
+    - MainMenu (.ino / .h) - Access all of the game features.
+    - SettingsMenu (.ino / .h) - Edit user preferences.
+    - HighScoreMenu (.ino / .h) - Contains the leaderboard of the top 3 scores.
+    - Credits (.ino / .h) - Contains Info about the game and its creator.
+  - InGame (.ino / .h) - Logic of the game.
+  - GameOver (.ino / .h) - Two screens, detailing the player's stats.
+- Entity (.ino / .h) - Contains all of the game objects: the player, bombs, enemies, explosions etc.
+- Position (.ino / .h) - Basic class describing the position of a object on a XY axis
+- List (.ino / .h) - Implementations of long and short lists, used to store entities.
 
 ### Hardware
-The following components were used for building the project
+The following components were used for building the project:
+- Arduino Uno.
+- LCD display, using a potentiometer to control the contrast.
+- 8x8 LED Matrix.
+- Joystick.
+- Buzzer, using a 100 Ohm resistor.
+- MAX7219 Shift register, using a 10k Ohm resistor, a 10 uF capacitor and a 104 pF ceramic capacitor.
+- Wires per logic.
 
 ### Setup
 TBA
