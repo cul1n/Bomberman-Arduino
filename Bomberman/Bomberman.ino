@@ -13,12 +13,12 @@ LedControl lc = LedControl(dinPin, clockPin, loadPin, 1); //DIN, CLK, LOAD, No. 
 long int lastMoved = millis();
 int index = 0;
 int lastIndex = -1;
-int options = 4;
+int options = mainMenuNumberOfOptions;
 bool change = false;
 bool lastSwState = HIGH;
 bool nextMenu = false;
-bool finished = false;
-int pos, letter = 0;
+bool action = false;
+int xMovement, yMovement = 0;
 byte screen = 0;
 
 Controls controls;
@@ -26,6 +26,7 @@ Controls controls;
 void setup() {
   pinMode(swPin, INPUT_PULLUP);
   pinMode(buzzerPin, OUTPUT);
+  pinMode(brightnessPin, OUTPUT);
   
   lcd.begin(16,2); // set up the LCD's number of columns and rows:
 
@@ -87,7 +88,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    getGameState().playerController(pos, letter, finished);
+    getGameState().playerController(xMovement, yMovement, action);
   }
   
   else if (getGameState().isGameOver()) {
@@ -96,7 +97,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    if (finished) {
+    if (action) {
       screen++;
     }
     
@@ -109,7 +110,7 @@ void loop() {
     options = getGameState().getNumberOfOptions();
   }
   
-  else if (getGameState().introSequence() ){
+  else if (getGameState().introSequence()){
     getGameState().render(0, 0);
   }
   
@@ -119,7 +120,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    getGameState().editName(letter, pos, finished);
+    getGameState().editName(yMovement, xMovement, action);
     
   }
   
@@ -129,7 +130,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    getGameState().editLevel(pos, letter, finished);
+    getGameState().editLevel(xMovement, yMovement, action);
   }
   
   else if (getGameState().isEditingContrast()) {
@@ -138,7 +139,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    getGameState().editContrast(pos, letter, finished);
+    getGameState().editContrast(xMovement, yMovement, action);
   }
   
   else if (getGameState().isEditingLCDBrightness()) {
@@ -147,7 +148,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    getGameState().editLCDBrightness(pos, letter, finished);
+    getGameState().editLCDBrightness(xMovement, yMovement, action);
   }
   
   else if (getGameState().isEditingMatrixBrightness()) {
@@ -156,7 +157,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    getGameState().editMatrixBrightness(pos, letter, finished);
+    getGameState().editMatrixBrightness(xMovement, yMovement, action);
   }
   
   else if (getGameState().isResettingScores()) {
@@ -165,7 +166,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    getGameState().resetScores(pos, letter, finished);
+    getGameState().resetScores(xMovement, yMovement, action);
   }
 
   else if (getGameState().isDisablingSound()) {
@@ -174,7 +175,7 @@ void loop() {
       lastMoved = millis();
     }
     
-    getGameState().disableSound(pos, letter, finished);
+    getGameState().disableSound(xMovement, yMovement, action);
   }
   
   else {
@@ -199,7 +200,7 @@ void loop() {
     }
   }
 
-  pos = 0;
-  letter = 0;
-  finished = false;
+  xMovement = 0;
+  yMovement = 0;
+  action = false;
 }

@@ -155,6 +155,7 @@ const byte healthShopIndex = 0;
 const byte bombShopIndex = 1;
 const byte spreadShopIndex = 2;
 const byte basePrice = 25;
+const byte itemValueDisplay = 100;
 
 const byte lastLevelIncrease = 5;
 const byte baseTime = 25;
@@ -167,6 +168,17 @@ const byte bombBlinkerMaxTime = 10;
 
 const int enemyScore = 20;
 const int wallScore = 5;
+
+const byte enemyRight = 0;
+const byte enemyLeft = 1;
+const byte enemyUp = 2;
+const byte enemyDown = 3;
+
+const byte explosionAllDirections = 0;
+const byte explosionLeft = 1;
+const byte explosionRight = 2;
+const byte explosionDown = 3;
+const byte explosionUp = 4;
 
 const byte longListLength = 18;
 const byte shortListLength = 3;
@@ -181,9 +193,32 @@ const byte gateId = 6;
 const byte enemyId = 7;
 
 // Consts used for menu and settings
+const byte mainMenuNumberOfOptions = 4;
+const byte highScoreNumberOfOptions = 5;
+const byte settingsNumberOfOptions = 8;
+const byte creditsNumberOfOptions = 4;
+const byte introNumberOfOptions = 2;
+
 const byte numberOfHighScores = 3;
 const String noPlayer = "NON 0";
 const byte numberOfScreens = 2;
 const int defaultContrastValue = 60;
 const int defaultLCDBrightnessValue = 100;
 const int defaultMatrixBrightnessValue = 10;
+
+const byte levelExponent = 5;
+const int maxSettingValue = 255;
+const byte settingExponent = 25;
+const byte maxMatrixBrightnessValue = 15;
+const byte matrixBrightnessExponent = 5;
+
+const byte editingNameIndex = 0;
+const byte editingLevelIndex = 1;
+const byte editingContrastIndex = 2;
+const byte editingLCDBrightnessIndex = 3;
+const byte editingMatrixBrightnessIndex = 4;
+const byte resettingScoresIndex = 5;
+const byte disablingSoundIndex = 6;
+const byte backSettingsIndex = 7;
+
+const byte githubLinkIndex = 2;

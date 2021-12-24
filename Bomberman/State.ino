@@ -7,17 +7,17 @@
 #include "InGame.h"
 #include "GameOver.h"
 
-String listMainMenu[4] = {"Play", "Settings", "High Score", "Credits"};
-String listHighScore[5] = {"High Scores:", noPlayer, noPlayer, noPlayer, "Back"};
-String listSettingsMenu[8] = {"Name", "Level", "Contrast", "LCD Brightness", "Mtrx Brghtnss", "Reset HiScore", "Sound", "Back"};
-String listCredits[4] = {"Bomberman", "Calin Hirhui", "github.com/cul1n/Bomberman-Arduino  ", "Back"};
-String listIntro[2] = {"Bomberman", "Loading.."};
+String listMainMenu[mainMenuNumberOfOptions] = {"Play", "Settings", "High Score", "Credits"};
+String listHighScore[highScoreNumberOfOptions] = {"High Scores:", noPlayer, noPlayer, noPlayer, "Back"};
+String listSettingsMenu[settingsNumberOfOptions] = {"Name", "Level", "Contrast", "LCD Brightness", "Mtrx Brghtnss", "Reset HiScore", "Sound", "Back"};
+String listCredits[creditsNumberOfOptions] = {"Bomberman", "Calin Hirhui", "github.com/cul1n/Bomberman-Arduino  ", "Back"};
+String listIntro[introNumberOfOptions] = {"Bomberman", "Loading.."};
 
-Intro intro(2, listIntro);
-MainMenu mainMenu(4, listMainMenu);
-HighScoreMenu highScoreMenu(5, listHighScore);
-Credits credits(4, listCredits);
-SettingsMenu settingsMenu(8, listSettingsMenu);
+Intro intro(introNumberOfOptions, listIntro);
+MainMenu mainMenu(mainMenuNumberOfOptions, listMainMenu);
+HighScoreMenu highScoreMenu(highScoreNumberOfOptions, listHighScore);
+Credits credits(creditsNumberOfOptions, listCredits);
+SettingsMenu settingsMenu(settingsNumberOfOptions, listSettingsMenu);
 InGame inGame;
 GameOver gameOver;
 

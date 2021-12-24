@@ -4,28 +4,28 @@ void Controls::editOption() {
   int yValue = analogRead(yPin);
   int xValue = analogRead(xPin);
   bool swState = digitalRead(swPin);
-  pos = 0;
-  letter = 0;
-  finished = false;
+  xMovement = 0;
+  yMovement = 0;
+  action = false;
   
   if (yValue > maxThreshold) {
-    letter = negative;
+    yMovement = negative;
   }
 
   if (yValue < minThreshold) {
-    letter = positive;
+    yMovement = positive;
   }
 
   if (xValue > maxThreshold) {
-    pos = positive;
+    xMovement = positive;
   }
 
   if (xValue < minThreshold) {
-    pos = negative;
+    xMovement = negative;
   }
 
   if (swState == LOW && swState != lastSwState) {
-    finished = true;
+    action = true;
   }
 
   lastSwState = swState;

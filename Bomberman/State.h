@@ -1,5 +1,4 @@
 #pragma once
-#include <WString.h>
 
 class State {
  public:

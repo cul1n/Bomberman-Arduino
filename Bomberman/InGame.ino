@@ -63,7 +63,8 @@ void InGame::generateRoom() {
   // Player starting position
   p.setPos(3, 0);
   matrix[3][0] = playerId;
-  
+
+  // Choosing one of the 3 random positions for the gate
   byte gatePosition = random(3);
   
   if (gatePosition == 0) {
@@ -303,7 +304,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
           lcd.write(byte(i + 1));
           lcd.print(F(":"));
           lcd.print(itemValue);
-          if (itemValue < 100) {
+          if (itemValue < itemValueDisplay) {
             lcd.print(F("  "));
           }
           else {
@@ -317,7 +318,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       shopDisplayed = true;
       shopIndex = 0;
     }
-    if (yChange == -1) {
+    if (yChange == negative) {
       if (shopIndex != 0) {
         controls.playSound(menuChangeFrequency, menuChangeDuration);
         lcd.setCursor(shopIndex * 6, 1);
@@ -328,7 +329,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
       }
     }
   
-    else if (yChange == 1) {
+    else if (yChange == positive) {
       if (shopIndex != 2) {
         controls.playSound(menuChangeFrequency, menuChangeDuration);
         lcd.setCursor(shopIndex * 6, 1);
@@ -342,14 +343,14 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
     else if (swChange) {
       
       switch (shopIndex) {
-        case 0: {
+        case 0: { // player chooses the first option
           byte i = 0;
           
           while (items[i] == false && i < 3) {
             i++;
           }
 
-          byte itemValue = (level / 2 + i) * 25;
+          byte itemValue = (level / 2 + i) * basePrice;
 
           if (score > itemValue) {
             score -= itemValue;
@@ -379,8 +380,8 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
           break;
         }
         
-        case 1: {
-          byte i = 2;
+        case 1: { // player chooses the second option
+          byte i = numberOfItems - 1;
           
           while (items[i] == false && i > 0) {
             i--;
@@ -412,7 +413,7 @@ void InGame::playerController(int xChange, int yChange, bool swChange) {
           break;
         }
         
-        case 2: {
+        case 2: { // player chooses the leave option
           shop = false;
           
           for (int i = 0; i < numberOfItems; i++) {
@@ -563,7 +564,7 @@ void InGame::matrixUpdate() {
       byte newDir = dir;
       matrix[x][y] = 0;
       switch (dir) {
-        case 0:
+        case enemyRight:
           if (x + 1 < matrixSize - 1 && (matrix[x + 1][y] == 0 || matrix[x + 1][y] == playerId || matrix[x + 1][y] == explosionId)) {
             enemies.getItem(i).modifyPos(positive, 0);
           }
@@ -571,7 +572,7 @@ void InGame::matrixUpdate() {
             newDir = random(0, numberOfDirections);
           }
           break;
-        case 1:
+        case enemyLeft:
           if (x - 1 > 0 && (matrix[x - 1][y] == 0 || matrix[x - 1][y] == playerId || matrix[x - 1][y] == explosionId)) {
             enemies.getItem(i).modifyPos(negative, 0);
           }
@@ -579,7 +580,7 @@ void InGame::matrixUpdate() {
             newDir = random(0, numberOfDirections);
           }
           break;
-        case 2:
+        case enemyUp:
           if (y + 1 < matrixSize - 1 && (matrix[x][y + 1] == 0 || matrix[x][y + 1] == playerId || matrix[x][y + 1] == explosionId)) {
             enemies.getItem(i).modifyPos(0, positive);
           }
@@ -587,7 +588,7 @@ void InGame::matrixUpdate() {
             newDir = random(0, numberOfDirections);
           }
           break;
-        case 3:
+        case enemyDown:
           if (y - 1 > 0 && (matrix[x][y - 1] == 0 || matrix[x][y - 1] == playerId || matrix[x][y - 1] == explosionId)) {
             enemies.getItem(i).modifyPos(0, negative);
           }
@@ -627,14 +628,14 @@ void InGame::matrixUpdate() {
       byte dir = explosions.getItem(i).getDirection();
 
       switch (dir) {
-        case 0: {
+        case explosionAllDirections: {
             if (matrix[x - 1][y] == breakableWallId) {
               score += wallScore;
               updateScore();
               matrix[x - 1][y] = 0;
             }
             else if (matrix[x - 1][y] != solidWallId && matrix[x - 1][y] != gateId) {
-              Explosion explosion(x - 1, y, spread - 1, 1);
+              Explosion explosion(x - 1, y, spread - 1, explosionLeft);
               explosions.append(explosion);
             }
 
@@ -644,7 +645,7 @@ void InGame::matrixUpdate() {
               matrix[x + 1][y] = 0;
             }
             else if (matrix[x + 1][y] != solidWallId && matrix[x + 1][y] != gateId) {
-              Explosion explosion(x + 1, y, spread - 1, 2);
+              Explosion explosion(x + 1, y, spread - 1, explosionRight);
               explosions.append(explosion);
             }
 
@@ -654,7 +655,7 @@ void InGame::matrixUpdate() {
               matrix[x][y - 1] = 0;
             }
             else if (matrix[x][y - 1] != solidWallId && matrix[x][y - 1] != gateId) {
-              Explosion explosion(x, y - 1, spread - 1, 3);
+              Explosion explosion(x, y - 1, spread - 1, explosionDown);
               explosions.append(explosion);
             }
 
@@ -664,13 +665,14 @@ void InGame::matrixUpdate() {
               matrix[x][y + 1] = 0;
             }
             else if (matrix[x][y + 1] != solidWallId && matrix[x][y + 1] != gateId) {
-              Explosion explosion(x, y + 1, spread - 1, 4);
+              Explosion explosion(x, y + 1, spread - 1, explosionUp);
               explosions.append(explosion);
             }
 
             break;
           }
-        case 1: {
+          
+        case explosionLeft: {
             if (matrix[x - 1][y] == breakableWallId) {
               score += wallScore;
               updateScore();
@@ -682,7 +684,8 @@ void InGame::matrixUpdate() {
             }
             break;
           }
-        case 2: {
+          
+        case explosionRight: {
             if (matrix[x + 1][y] == breakableWallId) {
               score += wallScore;
               updateScore();
@@ -694,7 +697,8 @@ void InGame::matrixUpdate() {
             }
             break;
           }
-        case 3: {
+          
+        case explosionDown: {
             if (matrix[x][y - 1] == breakableWallId) {
               score += wallScore;
               updateScore();
@@ -706,7 +710,8 @@ void InGame::matrixUpdate() {
             }
             break;
           }
-        case 4: {
+          
+        case explosionUp: {
             if (matrix[x][y + 1] == breakableWallId) {
               score += wallScore;
               updateScore();
@@ -718,12 +723,13 @@ void InGame::matrixUpdate() {
             }
             break;
           }
+          
         default: {
             break;
           }
       }
     }
-    matrix[explosions.getItem(i).getPos().getPosX()][explosions.getItem(i).getPos().getPosY()] = explosionId; // ???
+    matrix[explosions.getItem(i).getPos().getPosX()][explosions.getItem(i).getPos().getPosY()] = explosionId;
   }
 
   for (int i = 0; i < explosions.length; i++) {
