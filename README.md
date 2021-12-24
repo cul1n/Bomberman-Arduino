@@ -1,10 +1,57 @@
 # Bomberman-Arduino
 
-Try to escape a maze-like dungeon using the classic Bomberman mechanics.
+### Introduction
 
-Features included as of the last update:
-- Intro screen
-- Main menu
-- Settings (Edit name, level, LCD contrast, LCD Brightness, Matrix Brightness)
-- High Score Table
-- About section
+This project was developed by applying the knowledge obtained during the [Introduction To Robotics Course](https://github.com/cul1n/IntroductionToRobotics) @ FMI UNIBUC. It's a game inspired by the classic 1983 NES game, [Bomberman](https://en.wikipedia.org/wiki/Bomberman_(1983_video_game)).
+
+### How To Play
+
+Once the game starts, a random room will be generated and the player will be spawned in the starting gate. The player is tasked with clearing the room by controlling a dot on the 8x8 matrix with the joystick and passing though the exit gate before the time runs out. Each room is filled with breakable walls and enemies that may block the way or damage you, but the player has a handy trick: placing bombs and destroying obstacles by pressing the joysitck's "switch" button. Every two levels you will meet a shop keeper that sells you power-ups which help you on your journey, but bewere as you neeed to pay with your score. The objective of the game is to beat the 10 levels, reaching the end of the dungeon.
+
+### Game Description And Tehnical Details
+
+Turning on the game you will be met by the loading sceen and the starting animation of a bomb exploding.
+
+The menu is displayed on the LCD and contains the following options:
+- `Play`: jump right into the game.
+- `Settings`: all settings are saved in EEPROM (even if the game is powered off).
+  - Name: insert the player's name using the joystick's X and Y axis for a maximum of 6 characters, this name will be displayed during the game and in the high score section.
+  - Level: choose the starting level of the game (range: 1 to 10).
+  - Contrast: adjust the LCD's contrast (range: 1 to 255).
+  - LCD Brightness: adjust the LCD's brightness (range: 1 to 255).
+  - Matrix Brightness: adjust the matrix's brightness (range: 1 to 15).
+  - Reset High Scores.
+  - Disable Sounds.
+- `High Scores`: list of the three best scores and the name of the player that achived them.
+- `Credits`: name of the game, author and a scrolling link to the githup repository.
+
+Each sub-menu has a `Back` option that returns the player to the main manu and is represented on the matrix by displaying a specific icon.
+
+When the `Play` option is chosen, the first room will be rendered on the matrix, and the game info will be displayed on the LCD: player's name, current level, time left, number of lives (initally 3), number of bombs (initially 1) and current score.
+
+Levels are procedurally generated as follows:
+- Each level has a number of rooms equal to the number of the level, capped at 5 rooms.
+- A room has a unbreakable border around it with two gates, on the left side the spawning gate, and on a random edge of the level the exit gate.
+- Breakable walls will be placed in the room, the further the player goes, more walls will be placed.
+- Enemies move trough the room and damage the player by colliding with him.
+- For each room in the level, the timer increases with the base time of 25 seconds.
+- Every two levels a shop will be displayed on the LCD, where the player can buy power-ups.
+
+The score is calculated by adding 5 points per wall destroyed, 20 points per enemy slayed and one third of the leftover time when finishing the level. When the shop screen is displayed, the score will be visible and 2 of 3 power-ups will be available to be bought, as the games progresses this items become more expensive:
+- Health (base price of 25): Increases the player health by one.
+- Bomb (base price of 50): Inceases the number of bombs a player can place in quick succession. Maximum number of bombs is 3.
+- Extra spread (base price of 75): Increases the range of the bomb by one more unit. Only one available during the game.
+
+The game ends if the player has no lives left, the timer reaches 0 or the player finishes level 10. The game over screen displays the level reached, and after a button press, another screen with stats about the game will be revealed: player's score (it announces if the player entered the high score leaderboard), total time played, number of bombs placed and damage taken. Another button press will take the player back to the main menu.
+
+### Project files
+TBA
+
+### Hardware
+The following components were used for building the project
+
+### Setup
+TBA
+
+### Demo
+TBA
